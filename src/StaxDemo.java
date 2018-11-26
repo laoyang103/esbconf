@@ -135,22 +135,21 @@ public class StaxDemo {
       versionId = ConfImport.addTemplateVersion(systemId, transCode, "1.0");
 
       int reqTemplateId, resTemplateId;
-      if ("VC".equals(systemType)) {
-        idx = 0;
-        reqTemplateId = ConfImport.addTemplate(systemId, "I", transCode, transName);
-        ConfImport.addRelation(versionId, reqTemplateId);
-        for (HashMap<String,Object> inItem: inItemList) {
-          String IsMust = (String )inItem.get("IsMust");
-          if ("no".equals(IsMust)) IsMust = "N";
-          else IsMust = "Y";
-          if ("交易码".equals((String )inItem.get("ItemDesc"))) {
-            inprocd = inItem;
-          } else {
-            ConfImport.addTemplateField(reqTemplateId, idx + 1, 1, (String )inItem.get("ElemName"), 
-                (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
-          }
+      idx = 0;
+      reqTemplateId = ConfImport.addTemplate(systemId, "I", transCode, transName);
+      ConfImport.addRelation(versionId, reqTemplateId);
+      for (HashMap<String,Object> inItem: inItemList) {
+        String IsMust = (String )inItem.get("IsMust");
+        if ("no".equals(IsMust)) IsMust = "N";
+        else IsMust = "Y";
+        if ("交易码".equals((String )inItem.get("ItemDesc"))) {
+          inprocd = inItem;
+        } else {
+          ConfImport.addTemplateField(reqTemplateId, idx + 1, 1, (String )inItem.get("ElemName"), 
+              (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
         }
       }
+
       idx = 0;
       resTemplateId = ConfImport.addTemplate(systemId, "O", transCode, transName);
       ConfImport.addRelation(versionId, resTemplateId);
@@ -176,7 +175,7 @@ public class StaxDemo {
     if (null != outprocd) {
       ConfImport.addTemplateField(masterResTemplateId, 1, 1, (String )outprocd.get("ElemName"), 
           (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y");
-      ConfImport.addMasterTemplateField(masterReqTemplateId, 2, 1, 
+      ConfImport.addMasterTemplateField(masterResTemplateId, 2, 1, 
           "fixed-field", "str", "Y", (String )outprocd.get("ElemName"));
     }
   }
