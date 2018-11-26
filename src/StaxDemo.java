@@ -99,23 +99,19 @@ public class StaxDemo {
     }
   }
 
-  public static void main(String[] args) {
-    String systemCode, systemName;
-    int idx, systemId = -1, transId = -1;
+  public static void addSystem(String systemName, String systemCode, String systemType) {
+    int idx, systemId = -1, transId = -1, versionId;
     int masterReqTemplateId = -1, masterResTemplateId= -1;
-    long nowts = System.currentTimeMillis() / 1000;
     HashMap<String,Object> inprocd = null, outprocd = null;
 
-    systemCode = "ABC2-SVR" + nowts;
-    systemName = "ABC2-SVR" + nowts;
-    systemId = ConfImport.addMockSystem(systemCode, systemName);
+    systemId = ConfImport.addMockSystem(systemCode, systemName, systemType);
 
-    try {
-      StaxDemo.staxService("./conf/service.xml");
-      StaxDemo.staxFmt("./conf/format.xml");
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
+    masterReqTemplateId = ConfImport.addMasterTemplate(systemId, "I", systemName);
+    masterResTemplateId = ConfImport.addMasterTemplate(systemId, "O", systemName);
+
+    versionId = ConfImport.addTemplateVersion(systemId, systemCode, "1.0");
+    ConfImport.addRelation(versionId, masterReqTemplateId);
+    ConfImport.addRelation(versionId, masterResTemplateId);
 
     for (String key : allSvcMap.keySet()) {
       HashMap<String,Object> inFmt, outFmt;
@@ -136,23 +132,28 @@ public class StaxDemo {
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
       transId = ConfImport.addMockTrans(transCode, transName, systemId);
+      versionId = ConfImport.addTemplateVersion(systemId, transCode, "1.0");
 
-      int reqTemplateId = ConfImport.addTemplate(systemId, "I", transCode, transName);
-      int resTemplateId = ConfImport.addTemplate(systemId, "O", transCode, transName);
-
-      idx = 0;
-      for (HashMap<String,Object> inItem: inItemList) {
-        String IsMust = (String )inItem.get("IsMust");
-        if ("no".equals(IsMust)) IsMust = "N";
-        else IsMust = "Y";
-        if ("交易码".equals((String )inItem.get("ItemDesc"))) {
-          inprocd = inItem;
-        } else {
-          ConfImport.addTemplateField(reqTemplateId, idx + 1, 1, (String )inItem.get("ElemName"), 
-              (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
+      int reqTemplateId, resTemplateId;
+      if ("VC".equals(systemType)) {
+        idx = 0;
+        reqTemplateId = ConfImport.addTemplate(systemId, "I", transCode, transName);
+        ConfImport.addRelation(versionId, reqTemplateId);
+        for (HashMap<String,Object> inItem: inItemList) {
+          String IsMust = (String )inItem.get("IsMust");
+          if ("no".equals(IsMust)) IsMust = "N";
+          else IsMust = "Y";
+          if ("交易码".equals((String )inItem.get("ItemDesc"))) {
+            inprocd = inItem;
+          } else {
+            ConfImport.addTemplateField(reqTemplateId, idx + 1, 1, (String )inItem.get("ElemName"), 
+                (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
+          }
         }
       }
       idx = 0;
+      resTemplateId = ConfImport.addTemplate(systemId, "O", transCode, transName);
+      ConfImport.addRelation(versionId, resTemplateId);
       for (HashMap<String,Object> outItem: outItemList) {
         String IsMust = (String )outItem.get("IsMust");
         if ("no".equals(IsMust)) IsMust = "N";
@@ -166,20 +167,35 @@ public class StaxDemo {
       }
     }
 
-    masterReqTemplateId = ConfImport.addMasterTemplate(systemId, "I", systemName);
     if (null != inprocd) {
       ConfImport.addTemplateField(masterReqTemplateId, 1, 1, (String )inprocd.get("ElemName"), 
           (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y");
       ConfImport.addMasterTemplateField(masterReqTemplateId, 2, 1, 
           "fixed-field", "str", "Y", (String )inprocd.get("ElemName"));
     }
-    masterResTemplateId = ConfImport.addMasterTemplate(systemId, "O", systemName);
     if (null != outprocd) {
       ConfImport.addTemplateField(masterResTemplateId, 1, 1, (String )outprocd.get("ElemName"), 
           (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y");
       ConfImport.addMasterTemplateField(masterReqTemplateId, 2, 1, 
           "fixed-field", "str", "Y", (String )outprocd.get("ElemName"));
     }
+  }
+
+  public static void main(String[] args) {
+    String systemCode, systemName;
+    long nowts = System.currentTimeMillis() / 1000;
+
+    try {
+      StaxDemo.staxService("./conf/service.xml");
+      StaxDemo.staxFmt("./conf/format.xml");
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+
+    systemCode = "ABC2-SVR" + nowts;
+    systemName = "ABC2-SVR" + nowts;
+    StaxDemo.addSystem(systemName, systemName, "VC");
+    StaxDemo.addSystem(systemName, systemName, "VS");
   }
 }
 

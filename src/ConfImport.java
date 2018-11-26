@@ -26,10 +26,10 @@ public class ConfImport {
     } 
   }
 
-  public static int addMockSystem(String systemCode, String systemName) {
+  public static int addMockSystem(String systemCode, String systemName, String systemType) {
     String sql = null;
     sql = String.format("INSERT INTO mock_system VALUES(NULL, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", \"NULL\", \"0\", \"0\")", 
-        systemCode, systemName, MOCK_TYPE, MOCK_CM_TYPE, MOCK_MESSAGE_TYPE, MOCK_MESSAGE_ENCODING);
+        systemCode, systemName, systemType, MOCK_CM_TYPE, MOCK_MESSAGE_TYPE, MOCK_MESSAGE_ENCODING);
     System.out.println(sql);
     try {
       Statement statement = con.createStatement();
@@ -62,8 +62,8 @@ public class ConfImport {
 
   public static int addMasterTemplate(int mockId, String io, String systemName) {
     String sql = null;
-    String fieldStr = "id,system_id,trans_code,message_code,message_name,message_type,message_encoding,message_io,version";
-    sql = String.format("INSERT INTO trans_message_template (%s) VALUES(NULL, %d, \"NULL\", \"master\", \"%s\", \"%s\", \"%s\", \"%s\", \"1.0\")", 
+    String fieldStr = "id,system_id,message_code,message_name,message_type,message_encoding,message_io,version";
+    sql = String.format("INSERT INTO trans_message_template (%s) VALUES(NULL, %d, \"master\", \"%s\", \"%s\", \"%s\", \"%s\", \"1.0\")", 
         fieldStr, mockId, systemName, MOCK_MESSAGE_TYPE, MOCK_MESSAGE_ENCODING, io);
     System.out.println(sql);
     try {
@@ -121,6 +121,42 @@ public class ConfImport {
     String fieldStr = "id, template_id, field_index, field_level, field_code, field_system_code, field_name, field_type, data_type, param_1, required";
     sql = String.format("INSERT INTO trans_message_field (%s) VALUES(NULL, %d, %d, \"%d\", \"ref_trancode\", \"NULL\", \"交易码引用\", \"%s\", \"%s\", \"${%s}\", \"%s\")", 
         fieldStr, templateId, idx, level, fieldType, dataType, procd, required);
+    System.out.println(sql);
+    try {
+      Statement statement = con.createStatement();
+      statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+      ResultSet rs = statement.getGeneratedKeys();
+      if (rs.next()) return rs.getInt(1);
+      else return -1;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return -1;
+  }
+
+  public static int addTemplateVersion(int mockId, String transCode, String version) {
+    String sql = null;
+    String fieldStr = "id,system_id,trans_code,version";
+    sql = String.format("INSERT INTO trans_template_version (%s) VALUES(NULL, %d, \"%s\", \"%s\")", 
+        fieldStr, mockId, transCode, version);
+    System.out.println(sql);
+    try {
+      Statement statement = con.createStatement();
+      statement.executeUpdate(sql, Statement.RETURN_GENERATED_KEYS);
+      ResultSet rs = statement.getGeneratedKeys();
+      if (rs.next()) return rs.getInt(1);
+      else return -1;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return -1;
+  }
+
+  public static int addRelation(int versionId, int templateId) {
+    String sql = null;
+    String fieldStr = "id,ver_id,template_id";
+    sql = String.format("INSERT INTO trans_template_version_relation (%s) VALUES(NULL, %d, %d)", 
+        fieldStr, versionId, templateId);
     System.out.println(sql);
     try {
       Statement statement = con.createStatement();
