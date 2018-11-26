@@ -144,8 +144,11 @@ public class StaxDemo {
         else IsMust = "Y";
         if ("交易码".equals((String )inItem.get("ItemDesc"))) {
           inprocd = inItem;
+        } else if ("yes".equals((String )inItem.get("ItemIgnr"))) {
+          ConfImport.addTemplateField(reqTemplateId, ++idx, 1, (String )inItem.get("XmlName"), 
+              (String )inItem.get("ItemDesc"), "nesting-field", "str", IsMust);
         } else {
-          ConfImport.addTemplateField(reqTemplateId, idx + 1, 1, (String )inItem.get("ElemName"), 
+          ConfImport.addTemplateField(reqTemplateId, ++idx, 2, (String )inItem.get("ElemName"), 
               (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
         }
       }
@@ -159,8 +162,11 @@ public class StaxDemo {
         else IsMust = "Y";
         if ("核心交易码".equals((String )outItem.get("ItemDesc"))) {
           outprocd = outItem;
+        } else if ("yes".equals((String )outItem.get("ItemIgnr"))) {
+          ConfImport.addTemplateField(resTemplateId, ++idx, 1, (String )outItem.get("XmlName"), 
+              (String )outItem.get("ItemDesc"), "nesting-field", "str", IsMust);
         } else {
-          ConfImport.addTemplateField(resTemplateId, idx + 1, 1, (String )outItem.get("ElemName"), 
+          ConfImport.addTemplateField(resTemplateId, ++idx, 2, (String )outItem.get("ElemName"), 
               (String )outItem.get("ItemDesc"), "fixed-field", "str", IsMust);
         }
       }
