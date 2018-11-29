@@ -162,7 +162,7 @@ public class StaxDemo {
       desc = "无描述";
     }
     UrlImport.addTemplateField(templateId, 1, 1, code, desc, "fixed-field", "str", "Y", "");
-    UrlImport.addTemplateField(templateId, 2, 1, "ref_transcode", "交易码引用", "fixed-field", "str", "Y", "${" + code + "}");
+    UrlImport.addTemplateField(templateId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + code + "}");
   }
 
   private static HashMap<String,Object> getProcdItem(ArrayList<HashMap<String,Object>> itemList) {
