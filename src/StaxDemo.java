@@ -149,32 +149,6 @@ public class StaxDemo {
     }
   }
 
-  private static void addMasterTemplateItems(int templateId, HashMap<String,Object> procd) {
-    String code, desc;
-    System.out.println(procd);
-    desc = (String )procd.get("procdDesc"); 
-    code = (String )procd.get("XmlName"); 
-    if (null == code) {
-      System.out.println("Can not add procd: " + procd);
-      return;
-    } 
-    if (null == desc) {
-      desc = "无描述";
-    }
-    UrlImport.addTemplateField(templateId, 1, 1, code, desc, "fixed-field", "str", "Y", "");
-    UrlImport.addTemplateField(templateId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + code + "}");
-  }
-
-  private static HashMap<String,Object> getProcdItem(ArrayList<HashMap<String,Object>> itemList) {
-    for (HashMap<String,Object> item: itemList) {
-      String desc = (String )item.get("ItemDesc"); 
-      if ("交易码".equals(desc) || "核心交易码".equals(desc)) {
-        return item;
-      }
-    }
-    return null;
-  }
-
   public static void main(String[] args) {
     int i, masterReqId, masterResId;
     String systemCode, systemName;
@@ -220,15 +194,11 @@ public class StaxDemo {
       inItemList  = (ArrayList<HashMap<String,Object>> )inFmt.get("items");
       outItemList = (ArrayList<HashMap<String,Object>> )outFmt.get("items");
 
-      if (null == inprocd)  inprocd = getProcdItem(inItemList);
-      if (null == outprocd) outprocd = getProcdItem(outItemList);
-
       addTemplateItems(transReqId, inItemList);
       addTemplateItems(transResId, outItemList);
     }
-
-    addMasterTemplateItems(masterReqId, inprocd);
-    addMasterTemplateItems(masterResId, outprocd);
+    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
   }
 }
 
