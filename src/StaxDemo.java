@@ -4,6 +4,9 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
 
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -21,7 +24,7 @@ public class StaxDemo {
     allSvcMap = new HashMap<String,Object>();
   }
 
-  public static void staxService(String confFile) throws FileNotFoundException, XMLStreamException {
+  private static void staxService(String confFile) throws FileNotFoundException, XMLStreamException {
     String key, val;
     Attribute attr = null;
     XMLInputFactory factory = XMLInputFactory.newFactory();
@@ -53,7 +56,7 @@ public class StaxDemo {
     }
   }
 
-  public static void staxFmt(String confFile) throws FileNotFoundException, XMLStreamException {
+  private static void staxFmt(String confFile) throws FileNotFoundException, XMLStreamException {
     String key, val;
     Attribute attr = null;
     XMLInputFactory factory = XMLInputFactory.newFactory();
@@ -99,96 +102,84 @@ public class StaxDemo {
     }
   }
 
-  public static void addSystem(String systemName, String systemCode, String systemType) {
-    int idx, systemId = -1, transId = -1, versionId;
-    int masterReqTemplateId = -1, masterResTemplateId= -1;
-    HashMap<String,Object> inprocd = null, outprocd = null;
+  private static HashMap<String, Integer> getTemplateIdMap(JSONArray transList, String transCode) {
+    int i;
+    HashMap<String, Integer> idmap = new HashMap<String, Integer>();
+    for (i = 0; i < transList.size(); i++) {
+      JSONObject trans = transList.getJSONObject(i);
+      if ("master".equals(transCode) && "master".equals(trans.get("messageCode"))) {
+        if ("I".equals(trans.get("messageIo"))) {
+          idmap.put("masterReqId", (Integer )trans.get("id"));
+        } else {
+          idmap.put("masterResId", (Integer )trans.get("id"));
+        }
+      } else if (transCode.equals(trans.get("messageCode"))) {
+        if ("I".equals(trans.get("messageIo"))) {
+          idmap.put("transReqId", (Integer )trans.get("id"));
+        } else {
+          idmap.put("transResId", (Integer )trans.get("id"));
+        }
+      } 
+    }
+    return idmap;
+  }
 
-    systemId = ConfImport.addMockSystem(systemCode, systemName, systemType);
-
-    masterReqTemplateId = ConfImport.addMasterTemplate(systemId, "I", systemName);
-    masterResTemplateId = ConfImport.addMasterTemplate(systemId, "O", systemName);
-
-    versionId = ConfImport.addTemplateVersion(systemId, systemCode, "1.0");
-    ConfImport.addRelation(versionId, masterReqTemplateId);
-    ConfImport.addRelation(versionId, masterResTemplateId);
-
-    for (String key : allSvcMap.keySet()) {
-      HashMap<String,Object> inFmt, outFmt;
-      ArrayList<HashMap<String,Object>> inItemList, outItemList;
-      HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
-
-      inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
-      outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
-
-      if (null == inFmt || null == outFmt) {
-        System.out.println("No format for svc: " + key);
+  private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList) {
+    int level, idx = 0;
+    String fieldType, IsMust, code, desc;
+    for (HashMap<String,Object> item: itemList) {
+      desc = (String )item.get("ItemDesc"); 
+      code = (String )item.get("XmlName"); 
+      IsMust = (String )item.get("IsMust");
+      if ("no".equals(IsMust)) IsMust = "N";
+      else IsMust = "Y";
+      if ("yes".equals((String )item.get("ItemIgnr"))) {
+        level = 1; fieldType = "nesting-field";
+      } else {
+        level = 2; fieldType = "fixed-field";
+      }
+      if (null == code) {
+        System.out.println("Can not add item: " + item);
         continue;
+      } 
+      if (null == desc) {
+        desc = "无描述";
       }
-
-      inItemList  = (ArrayList<HashMap<String,Object>> )inFmt.get("items");
-      outItemList = (ArrayList<HashMap<String,Object>> )outFmt.get("items");
-
-      String transCode = (String )svc.get("Name");
-      String transName = (String )svc.get("SvcDesc");
-      transId = ConfImport.addMockTrans(transCode, transName, systemId);
-      versionId = ConfImport.addTemplateVersion(systemId, transCode, "1.0");
-
-      int reqTemplateId, resTemplateId;
-      idx = 0;
-      reqTemplateId = ConfImport.addTemplate(systemId, "I", transCode, transName);
-      ConfImport.addRelation(versionId, reqTemplateId);
-      for (HashMap<String,Object> inItem: inItemList) {
-        String IsMust = (String )inItem.get("IsMust");
-        if ("no".equals(IsMust)) IsMust = "N";
-        else IsMust = "Y";
-        if ("交易码".equals((String )inItem.get("ItemDesc"))) {
-          inprocd = inItem;
-        } else if ("yes".equals((String )inItem.get("ItemIgnr"))) {
-          ConfImport.addTemplateField(reqTemplateId, ++idx, 1, (String )inItem.get("XmlName"), 
-              (String )inItem.get("ItemDesc"), "nesting-field", "str", IsMust);
-        } else {
-          ConfImport.addTemplateField(reqTemplateId, ++idx, 2, (String )inItem.get("ElemName"), 
-              (String )inItem.get("ItemDesc"), "fixed-field", "str", IsMust);
-        }
-      }
-
-      idx = 0;
-      resTemplateId = ConfImport.addTemplate(systemId, "O", transCode, transName);
-      ConfImport.addRelation(versionId, resTemplateId);
-      for (HashMap<String,Object> outItem: outItemList) {
-        String IsMust = (String )outItem.get("IsMust");
-        if ("no".equals(IsMust)) IsMust = "N";
-        else IsMust = "Y";
-        if ("核心交易码".equals((String )outItem.get("ItemDesc"))) {
-          outprocd = outItem;
-        } else if ("yes".equals((String )outItem.get("ItemIgnr"))) {
-          ConfImport.addTemplateField(resTemplateId, ++idx, 1, (String )outItem.get("XmlName"), 
-              (String )outItem.get("ItemDesc"), "nesting-field", "str", IsMust);
-        } else {
-          ConfImport.addTemplateField(resTemplateId, ++idx, 2, (String )outItem.get("ElemName"), 
-              (String )outItem.get("ItemDesc"), "fixed-field", "str", IsMust);
-        }
-      }
-    }
-
-    if (null != inprocd) {
-      ConfImport.addTemplateField(masterReqTemplateId, 1, 1, (String )inprocd.get("ElemName"), 
-          (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y");
-      ConfImport.addMasterTemplateField(masterReqTemplateId, 2, 1, 
-          "fixed-field", "str", "Y", (String )inprocd.get("ElemName"));
-    }
-    if (null != outprocd) {
-      ConfImport.addTemplateField(masterResTemplateId, 1, 1, (String )outprocd.get("ElemName"), 
-          (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y");
-      ConfImport.addMasterTemplateField(masterResTemplateId, 2, 1, 
-          "fixed-field", "str", "Y", (String )outprocd.get("ElemName"));
+      UrlImport.addTemplateField(templateId, ++idx, level, code, desc, fieldType, "str", IsMust, "");
     }
   }
 
+  private static void addMasterTemplateItems(int templateId, HashMap<String,Object> procd) {
+    String code, desc;
+    System.out.println(procd);
+    desc = (String )procd.get("procdDesc"); 
+    code = (String )procd.get("XmlName"); 
+    if (null == code) {
+      System.out.println("Can not add procd: " + procd);
+      return;
+    } 
+    if (null == desc) {
+      desc = "无描述";
+    }
+    UrlImport.addTemplateField(templateId, 1, 1, code, desc, "fixed-field", "str", "Y", "");
+    UrlImport.addTemplateField(templateId, 2, 1, "ref_transcode", "交易码引用", "fixed-field", "str", "Y", "${" + code + "}");
+  }
+
+  private static HashMap<String,Object> getProcdItem(ArrayList<HashMap<String,Object>> itemList) {
+    for (HashMap<String,Object> item: itemList) {
+      String desc = (String )item.get("ItemDesc"); 
+      if ("交易码".equals(desc) || "核心交易码".equals(desc)) {
+        return item;
+      }
+    }
+    return null;
+  }
+
   public static void main(String[] args) {
+    int i, masterReqId, masterResId;
     String systemCode, systemName;
     long nowts = System.currentTimeMillis() / 1000;
+    HashMap<String,Object> inprocd = null, outprocd = null;
 
     try {
       StaxDemo.staxService("./conf/service.xml");
@@ -199,8 +190,45 @@ public class StaxDemo {
 
     systemCode = "ABC2-SVR" + nowts;
     systemName = "ABC2-SVR" + nowts;
-    StaxDemo.addSystem(systemName, systemName, "VC");
-    StaxDemo.addSystem(systemName, systemName, "VS");
+    UrlImport.addMockSystem(systemName, systemName, "VC");
+    JSONArray transList = UrlImport.addMockTrans(systemName, "VC", "Default", "Default");
+    HashMap<String, Integer> idmap = getTemplateIdMap(transList, "master");
+    masterReqId = idmap.get("masterReqId");
+    masterResId = idmap.get("masterResId");
+
+    for (String key : allSvcMap.keySet()) {
+      int transReqId, transResId;
+      HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
+
+      String transCode = (String )svc.get("Name");
+      String transName = (String )svc.get("SvcDesc");
+      transList = UrlImport.addMockTrans(systemName, "VC", transCode, transName);
+      idmap = getTemplateIdMap(transList, transCode);
+      transReqId = idmap.get("transReqId");
+      transResId = idmap.get("transResId");
+
+      HashMap<String,Object> inFmt, outFmt;
+      ArrayList<HashMap<String,Object>> inItemList, outItemList;
+
+      inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
+      outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
+      if (null == inFmt || null == outFmt) {
+        System.out.println("No format for svc: " + key);
+        continue;
+      }
+
+      inItemList  = (ArrayList<HashMap<String,Object>> )inFmt.get("items");
+      outItemList = (ArrayList<HashMap<String,Object>> )outFmt.get("items");
+
+      if (null == inprocd)  inprocd = getProcdItem(inItemList);
+      if (null == outprocd) outprocd = getProcdItem(outItemList);
+
+      addTemplateItems(transReqId, inItemList);
+      addTemplateItems(transResId, outItemList);
+    }
+
+    addMasterTemplateItems(masterReqId, inprocd);
+    addMasterTemplateItems(masterResId, outprocd);
   }
 }
 
