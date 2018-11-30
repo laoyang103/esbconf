@@ -16,8 +16,12 @@ import javax.xml.stream.events.Attribute;
 
 public class StaxDemo {
 
-  public static HashMap<String,Object> allFmtMap = null;
-  public static HashMap<String,Object> allSvcMap = null;
+  private static HashMap<String,Object> allFmtMap = null;
+  private static HashMap<String,Object> allSvcMap = null;
+
+  private static String inprocdKey = null, inprocdVal = null;
+  private static String outprocdKey = null, outprocdVal = null;
+  private static HashMap<String,Object> inprocd = null, outprocd = null;
 
   static {
     allFmtMap = new HashMap<String,Object>();
@@ -96,8 +100,14 @@ public class StaxDemo {
           if ("".equals(val)) continue;
           itemMap.put(key, val);
         }
-        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
-        itemsList.add(itemMap);
+        if (null == inprocd && inprocdVal.equals(itemMap.get(inprocdKey))) {
+          inprocd = itemMap;
+        } else if (null == outprocd && outprocdVal.equals(itemMap.get(outprocdKey))) {
+          outprocd = itemMap;
+        } else {
+          itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
+          itemsList.add(itemMap);
+        }
       }
     }
   }
@@ -153,11 +163,15 @@ public class StaxDemo {
     int i, masterReqId, masterResId;
     String systemCode, systemName;
     long nowts = System.currentTimeMillis() / 1000;
-    HashMap<String,Object> inprocd = null, outprocd = null;
+
+    inprocdKey = args[0];
+    inprocdVal = args[1];
+    outprocdKey = args[2];
+    outprocdVal = args[3];
 
     try {
-      StaxDemo.staxService("./conf/service.xml");
-      StaxDemo.staxFmt("./conf/format.xml");
+      StaxDemo.staxService("./origin/ABC2_SVR_2005400/service.xml");
+      StaxDemo.staxFmt("./origin/ABC2_SVR_2005400/format.xml");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -197,8 +211,10 @@ public class StaxDemo {
       addTemplateItems(transReqId, inItemList);
       addTemplateItems(transResId, outItemList);
     }
-    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterReqId, 1, 1, (String )inprocd.get("XmlName"), (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + inprocd.get("XmlName") + "}");
+    UrlImport.addTemplateField(masterResId, 1, 1, (String )outprocd.get("XmlName"), (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + outprocd.get("XmlName") + "}");
   }
 }
 
