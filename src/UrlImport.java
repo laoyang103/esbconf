@@ -18,9 +18,13 @@ public class UrlImport {
 
   private static String HTTP_HOST = "192.168.99.67";
   private static String HTTP_PORT = "9288";
+  private static DefaultHttpClient client = null;
+
+  static {
+    client = new DefaultHttpClient();
+  }
 
   public static JSONObject doPost(String url, JSONArray array) {
-    DefaultHttpClient client = new DefaultHttpClient();
     HttpPost post = new HttpPost("http://" + HTTP_HOST + ":" + HTTP_PORT + url);
     JSONObject response = null;
 
