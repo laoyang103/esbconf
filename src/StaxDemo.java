@@ -104,10 +104,9 @@ public class StaxDemo {
           inprocd = itemMap;
         } else if (null == outprocd && outprocdVal.equals(itemMap.get(outprocdKey))) {
           outprocd = itemMap;
-        } else {
-          itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
-          itemsList.add(itemMap);
-        }
+        } 
+        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
+        itemsList.add(itemMap);
       }
     }
   }
@@ -194,6 +193,7 @@ public class StaxDemo {
       idmap = getTemplateIdMap(transList, transCode);
       transReqId = idmap.get("transReqId");
       transResId = idmap.get("transResId");
+      System.out.println(idmap);
 
       HashMap<String,Object> inFmt, outFmt;
       ArrayList<HashMap<String,Object>> inItemList, outItemList;
@@ -211,10 +211,10 @@ public class StaxDemo {
       addTemplateItems(transReqId, inItemList);
       addTemplateItems(transResId, outItemList);
     }
-    UrlImport.addTemplateField(masterReqId, 1, 1, (String )inprocd.get("XmlName"), (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + inprocd.get("XmlName") + "}");
-    UrlImport.addTemplateField(masterResId, 1, 1, (String )outprocd.get("XmlName"), (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "${" + outprocd.get("XmlName") + "}");
+    // UrlImport.addTemplateField(masterReqId, 1, 1, (String )inprocd.get("XmlName"), (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
+    // UrlImport.addTemplateField(masterResId, 1, 1, (String )outprocd.get("XmlName"), (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
   }
 }
 
