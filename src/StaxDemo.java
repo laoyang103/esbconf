@@ -190,7 +190,7 @@ public class StaxDemo {
         systemName, systemCode, systemType, masterReqId, masterResId);
 
     for (String key : allSvcMap.keySet()) {
-      int transReqId = 0, transResId = 0;
+      int transReqId = 0, transResId = 0, swapId;
       HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
 
       String transCode = (String )svc.get("Name");
@@ -215,10 +215,17 @@ public class StaxDemo {
 
       ArrayList<HashMap<String,Object>> inItemList, outItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
-      getFmtAllitem(inItemList,  inFmt);
+      outItemList = new ArrayList<HashMap<String,Object>>();
+
+      if (systemCode.endsWith("CLT") || systemCode.endsWith("CGET")) {
+        swapId = transReqId;
+        transReqId = transResId;
+        transResId = swapId;
+      }
+
+      getFmtAllitem(inItemList, inFmt);
       addTemplateItems(transReqId, inItemList);
       if ("VC".equals(systemType)) {
-        outItemList = new ArrayList<HashMap<String,Object>>();
         getFmtAllitem(outItemList, outFmt);
         addTemplateItems(transResId, outItemList);
       }
