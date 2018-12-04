@@ -176,45 +176,31 @@ public class StaxDemo {
     itemCtx.addAll(items);
   }
 
-  public static void addSystem(String systemCode, String systemName, int commType, String messageType, 			
-      String messageEncoding, String formatFiles, String serviceFiles,String transCodeRule) {
-    String fileName;
-    String[] strList = null;
-    int i, masterReqId, masterResId;
+  public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
+      String messageType, String messageEncoding) {
+    int masterReqId, masterResId;
 
-    try {
-      strList = serviceFiles.split(";");
-      for (i = 0; i < strList.length; i++) {
-        StaxDemo.staxService(strList[i], transCodeRule);
-      }
-      strList = formatFiles.split(";");
-      for (i = 0; i < strList.length; i++) {
-        StaxDemo.staxFmt(strList[i]);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-
-    String systemType = "VC";
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
     JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
     HashMap<String, Integer> idmap = getTemplateIdMap(transList, "master");
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");
 
-    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [masterReqId=%d] [masterResId=%d]\n", 
-        systemName, systemCode, masterReqId, masterResId);
+    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d]\n", 
+        systemName, systemCode, systemType, masterReqId, masterResId);
 
     for (String key : allSvcMap.keySet()) {
-      int transReqId, transResId;
+      int transReqId = 0, transResId = 0;
       HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
 
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
-      transList = UrlImport.addMockTrans(systemCode, "VC", transCode, transName);
+      transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName);
       idmap = getTemplateIdMap(transList, transCode);
       transReqId = idmap.get("transReqId");
-      transResId = idmap.get("transResId");
+      if ("VC".equals(systemType)) {
+        transResId = idmap.get("transResId");
+      }
 
       System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
           transName, transCode, transReqId, transResId);
@@ -229,12 +215,13 @@ public class StaxDemo {
 
       ArrayList<HashMap<String,Object>> inItemList, outItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
-      outItemList = new ArrayList<HashMap<String,Object>>();
       getFmtAllitem(inItemList,  inFmt);
-      getFmtAllitem(outItemList, outFmt);
-
       addTemplateItems(transReqId, inItemList);
-      addTemplateItems(transResId, outItemList);
+      if ("VC".equals(systemType)) {
+        outItemList = new ArrayList<HashMap<String,Object>>();
+        getFmtAllitem(outItemList, outFmt);
+        addTemplateItems(transResId, outItemList);
+      }
     }
 
     JSONArray masterReqCtx = new JSONArray();
@@ -245,16 +232,42 @@ public class StaxDemo {
     UrlImport.commitTemplateField(masterResCtx);
   }
 
+  public static void loadConf(String formatFiles, String serviceFiles, String transCodeRule) {
+    int i;
+    String[] strList = null;
+    try {
+      strList = serviceFiles.split(";");
+      for (i = 0; i < strList.length; i++) {
+        StaxDemo.staxService(strList[i], transCodeRule);
+      }
+      strList = formatFiles.split(";");
+      for (i = 0; i < strList.length; i++) {
+        StaxDemo.staxFmt(strList[i]);
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+
   public static void main(String[] args) {
-    StaxDemo.addSystem(				              
-        args[0], 				                    // 系统名称
-        args[1], 				                    // 系统编码
-        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
-        args[3], 				                    // 报文类型
-        args[4], 				                    // 编码类型
+    StaxDemo.loadConf(				              
         args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
         args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
         args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
+    StaxDemo.addSystem(				              
+        args[0], 				                    // 系统名称
+        args[1], 				                    // 系统编码
+        "VC", 				                      // 系统编码
+        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+        args[3], 				                    // 报文类型
+        args[4]); 				                  // 编码类型
+    StaxDemo.addSystem(				              
+        args[0], 				                    // 系统名称
+        args[1], 				                    // 系统编码
+        "VS", 				                      // 系统编码
+        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+        args[3], 				                    // 报文类型
+        args[4]); 				                  // 编码类型
   }
 }
 
