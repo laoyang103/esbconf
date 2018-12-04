@@ -55,16 +55,17 @@ public class UrlImport {
     return response;
   }
 
-  public static int addMockSystem(String systemCode, String systemName, String systemType) {
+  public static int addMockSystem(String systemCode, String systemName, String systemType, 
+      int commType, String messageType, String messageEncoding) {
     JSONObject content = new JSONObject();
     JSONArray array = new JSONArray();
 
     content.put("systemCode", systemCode);
     content.put("systemName", systemName);
     content.put("mockType", systemType);
-    content.put("cmType", "2");
-    content.put("messageType", "xml");
-    content.put("messageEncoding", "GB2312");
+    content.put("cmType", commType);
+    content.put("messageType", messageType);
+    content.put("messageEncoding", messageEncoding);
     content.put("testStatus", "0");
     array.add(content);
 
@@ -80,10 +81,7 @@ public class UrlImport {
     content.put("systemCode", systemCode);
     content.put("transName", transName);
     content.put("transCode", transCode);
-    content.put("transType", systemType);
-    content.put("cmType", "2");
-    content.put("messageType", "xml");
-    content.put("messageEncoding", "GB2312");
+    content.put("mockType", systemType);
     content.put("testStatus", "0");
     array.add(content);
 
@@ -123,7 +121,7 @@ public class UrlImport {
 
   public static JSONArray commitTemplateField(JSONArray ctx) {
     JSONObject ret = null;
-    ret = UrlImport.doPost("/mock-server/model/field/add", ctx);
+    ret = UrlImport.doPost("/mock-server/model/fieldFormat/add", ctx);
     if (null == ret) {
       System.out.println(ctx.toString());
     }

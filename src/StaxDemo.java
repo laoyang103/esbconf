@@ -19,10 +19,6 @@ public class StaxDemo {
   private static HashMap<String,Object> allFmtMap = null;
   private static HashMap<String,Object> allSvcMap = null;
 
-  private static String inprocdKey = null, inprocdVal = null;
-  private static String outprocdKey = null, outprocdVal = null;
-  private static HashMap<String,Object> inprocd = null, outprocd = null;
-
   static {
     allFmtMap = new HashMap<String,Object>();
     allSvcMap = new HashMap<String,Object>();
@@ -100,11 +96,6 @@ public class StaxDemo {
           if ("".equals(val)) continue;
           itemMap.put(key, val);
         }
-        if (null == inprocd && inprocdVal.equals(itemMap.get(inprocdKey))) {
-          inprocd = itemMap;
-        } else if (null == outprocd && outprocdVal.equals(itemMap.get(outprocdKey))) {
-          outprocd = itemMap;
-        } 
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(itemMap);
       }
@@ -180,30 +171,34 @@ public class StaxDemo {
     itemCtx.addAll(items);
   }
 
-  public static void main(String[] args) {
+  public static void addSystem(String systemCode, String systemName, int commType, String messageType, 			
+      String messageEncoding, String formatFiles, String serviceFiles,String transCodeRule) {
+    String fileName;
+    String[] strList = null;
     int i, masterReqId, masterResId;
-    String systemCode, systemName;
-    long nowts = System.currentTimeMillis() / 1000;
-
-    inprocdKey = args[0];
-    inprocdVal = args[1];
-    outprocdKey = args[2];
-    outprocdVal = args[3];
 
     try {
-      StaxDemo.staxService("./origin/ABC2_SVR/service.xml");
-      StaxDemo.staxFmt("./origin/ABC2_SVR/format.xml");
+      strList = serviceFiles.split(";");
+      for (i = 0; i < strList.length; i++) {
+        StaxDemo.staxService(strList[i]);
+      }
+      strList = formatFiles.split(";");
+      for (i = 0; i < strList.length; i++) {
+        StaxDemo.staxFmt(strList[i]);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
 
-    systemCode = "ABC2-SVR" + nowts;
-    systemName = "ABC2-SVR" + nowts;
-    UrlImport.addMockSystem(systemName, systemName, "VC");
-    JSONArray transList = UrlImport.addMockTrans(systemName, "VC", "Default", "Default");
+    String systemType = "VC";
+    UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
+    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
     HashMap<String, Integer> idmap = getTemplateIdMap(transList, "master");
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");
+
+    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [masterReqId=%d] [masterResId=%d]\n", 
+        systemName, systemCode, masterReqId, masterResId);
 
     for (String key : allSvcMap.keySet()) {
       int transReqId, transResId;
@@ -211,17 +206,19 @@ public class StaxDemo {
 
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
-      transList = UrlImport.addMockTrans(systemName, "VC", transCode, transName);
+      transList = UrlImport.addMockTrans(systemCode, "VC", transCode, transName);
       idmap = getTemplateIdMap(transList, transCode);
       transReqId = idmap.get("transReqId");
       transResId = idmap.get("transResId");
-      System.out.println(idmap);
+
+      System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
+          transName, transCode, transReqId, transResId);
 
       HashMap<String,Object> inFmt, outFmt;
       inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
       outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
       if (null == inFmt || null == outFmt) {
-        System.out.println("No format for svc: " + key);
+        System.out.printf("No format for svc: %s(%s)", transName, transCode);
         continue;
       }
 
@@ -241,6 +238,18 @@ public class StaxDemo {
     UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
     UrlImport.commitTemplateField(masterReqCtx);
     UrlImport.commitTemplateField(masterResCtx);
+  }
+
+  public static void main(String[] args) {
+    StaxDemo.addSystem(				              
+        args[0], 				                    // 系统名称
+        args[1], 				                    // 系统编码
+        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+        args[3], 				                    // 报文类型
+        args[4], 				                    // 编码类型
+        args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
+        args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
+        args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
   }
 }
 
