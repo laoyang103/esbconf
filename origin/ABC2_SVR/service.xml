@@ -216,4 +216,112 @@
 		<![CDATA[]]>
 	</SvcFlowIdExpr>
 	</Service>
+	<Service Name="01000222"
+		SvcDesc="修改补录信息"
+		Version=""
+		VersionType="DateTime"
+		TimeOut="0"
+		RecJrnl="no"
+		IFmt="FMT_222_01000222_IN"
+		OFmt="FMT_222_01100222_OUT"
+		PFile=""
+		BFile=""
+		RevsFlag="no"
+		RevsSvcName=""
+		Transaction="no"
+		CompensateFlag="no"
+		CmptRevs=""
+		CompsSvcName=""
+		ExtCode=""
+		Prio=""
+		DestTimeOut="No"
+		RevsSeq="Random">
+		<NodeClass Name="" Desc=""></NodeClass>
+		<PrioExpr>
+			<![CDATA[]]>
+		</PrioExpr>
+		<SvrIdExpr>
+			<![CDATA[]]>
+		</SvrIdExpr>
+		<IFile>
+			<![CDATA[]]>
+		</IFile>
+		<OFile>
+			<![CDATA[]]>
+		</OFile>
+		<RevsInit>
+			<![CDATA[]]>
+		</RevsInit>
+		<RevsSucc>
+			<![CDATA[]]>
+		</RevsSucc>
+		<RevsFail>
+			<![CDATA[]]>
+		</RevsFail>
+		<CompsCustTab RecNum="0">
+		</CompsCustTab>
+		<RevsCustTab RecNum="0">
+		</RevsCustTab>
+		<IFmtGrpTab RecNum="0">
+		</IFmtGrpTab>
+		<OFmtGrpTab RecNum="0">
+		</OFmtGrpTab>
+		<EvtIfmtBegin>
+			<![CDATA[]]>
+		</EvtIfmtBegin>
+		<EvtIfmtEnd>
+			<![CDATA[]]>
+		</EvtIfmtEnd>
+		<EvtOfmtBegin>
+			<![CDATA[]]>
+		</EvtOfmtBegin>
+		<EvtOfmtEnd>
+			<![CDATA[]]>
+		</EvtOfmtEnd>
+		<EvtAcallBegin>
+			<![CDATA[nesb_record_ID("std400acur"),$std400sbdt=GETTIME("YYYYMMDD")]]>
+		</EvtAcallBegin>
+		<EvtAcallEnd>
+			<![CDATA[]]>
+		</EvtAcallEnd>
+		<EvtReturnBegin>
+			<![CDATA[]]>
+		</EvtReturnBegin>
+		<EvtReturnEnd>
+			<![CDATA[nesb_record_ID("OPFMTNUM")]]>
+		</EvtReturnEnd>
+		<EvtConvsvcBegin>
+			<![CDATA[]]>
+		</EvtConvsvcBegin>
+		<EvtConvsvcEnd>
+			<![CDATA[]]>
+		</EvtConvsvcEnd>
+		<EvtPfileBegin>
+			<![CDATA[]]>
+		</EvtPfileBegin>
+		<EvtPfileEnd>
+			<![CDATA[]]>
+		</EvtPfileEnd>
+		<EvtBfileBegin>
+			<![CDATA[]]>
+		</EvtBfileBegin>
+		<EvtBfileEnd>
+			<![CDATA[]]>
+		</EvtBfileEnd>
+		<EvtSfileBegin>
+			<![CDATA[]]>
+		</EvtSfileBegin>
+		<EvtSfileEnd>
+			<![CDATA[]]>
+		</EvtSfileEnd>
+		<EvtRfileBegin>
+			<![CDATA[]]>
+		</EvtRfileBegin>
+		<EvtRfileEnd>
+			<![CDATA[]]>
+		</EvtRfileEnd>
+	<SvcFlowIdExpr>
+		<![CDATA[]]>
+	</SvcFlowIdExpr>
+	</Service>
 </ServiceTab>

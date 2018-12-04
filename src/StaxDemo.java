@@ -136,6 +136,7 @@ public class StaxDemo {
   private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList) {
     int level, idx = 0;
     String fieldType, IsMust, code, desc;
+    JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
       desc = (String )item.get("ItemDesc"); 
       code = (String )item.get("XmlName"); 
@@ -154,8 +155,9 @@ public class StaxDemo {
       if (null == desc) {
         desc = "无描述";
       }
-      UrlImport.addTemplateField(templateId, ++idx, level, code, desc, fieldType, "str", IsMust, "");
+      UrlImport.addTemplateField(fieldArray, templateId, ++idx, level, code, desc, fieldType, "str", IsMust, "");
     }
+    UrlImport.commitTemplateField(fieldArray);
   }
 
   public static void main(String[] args) {
@@ -169,8 +171,8 @@ public class StaxDemo {
     outprocdVal = args[3];
 
     try {
-      StaxDemo.staxService("./origin/ABC2_SVR_2005400/service.xml");
-      StaxDemo.staxFmt("./origin/ABC2_SVR_2005400/format.xml");
+      StaxDemo.staxService("./origin/ABC2_SVR/service.xml");
+      StaxDemo.staxFmt("./origin/ABC2_SVR/format.xml");
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -211,10 +213,13 @@ public class StaxDemo {
       addTemplateItems(transReqId, inItemList);
       addTemplateItems(transResId, outItemList);
     }
-    // UrlImport.addTemplateField(masterReqId, 1, 1, (String )inprocd.get("XmlName"), (String )inprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
-    // UrlImport.addTemplateField(masterResId, 1, 1, (String )outprocd.get("XmlName"), (String )outprocd.get("ItemDesc"), "fixed-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+
+    JSONArray masterReqCtx = new JSONArray();
+    JSONArray masterResCtx = new JSONArray();
+    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.commitTemplateField(masterReqCtx);
+    UrlImport.commitTemplateField(masterResCtx);
   }
 }
 

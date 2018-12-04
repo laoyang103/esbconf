@@ -92,10 +92,9 @@ public class UrlImport {
     return JSONArray.fromObject(ret.get("content"));
   }
 
-  public static JSONArray addTemplateField(int templateId, int idx, int level, String code, 
-      String name, String fieldType, String dataType, String required, String param1) {
+  public static void addTemplateField(JSONArray ctx, int templateId, int idx, int level, 
+      String code, String name, String fieldType, String dataType, String required, String param1) {
     JSONObject content = new JSONObject();
-    JSONArray array = new JSONArray();
 
     content.put("templateId", templateId);
     content.put("fieldIndex", idx);
@@ -119,12 +118,14 @@ public class UrlImport {
     content.put("postPackEventCode", "");
     content.put("postPackEvent", "");
     content.put("updateStr", "");
-    array.add(content);
+    ctx.add(content);
+  }
 
+  public static JSONArray commitTemplateField(JSONArray ctx) {
     JSONObject ret = null;
-    ret = UrlImport.doPost("/mock-server/model/field/add", array);
+    ret = UrlImport.doPost("/mock-server/model/field/add", ctx);
     if (null == ret) {
-      System.out.println(array.toString());
+      System.out.println(ctx.toString());
     }
     return JSONArray.fromObject(ret.get("content"));
   }
