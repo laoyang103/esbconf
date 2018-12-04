@@ -6,6 +6,6 @@ ABC2_SVR`date +%s` \
 2 \
 xml \
 GB2312 \
-/opt/esbconf/origin/ABC2_SVR/format.xml \
-/opt/esbconf/origin/ABC2_SVR/service.xml \
+origin/ABC2_SVR/format.xml \
+origin/ABC2_SVR/service.xml \
 4,4
