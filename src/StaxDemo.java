@@ -24,12 +24,17 @@ public class StaxDemo {
     allSvcMap = new HashMap<String,Object>();
   }
 
-  private static void staxService(String confFile) throws FileNotFoundException, XMLStreamException {
-    String key, val;
+  private static void staxService(String confFile, String transCodeRule) throws FileNotFoundException, XMLStreamException {
+    String key, val; 
+    int transStart, transOffset;
     Attribute attr = null;
     XMLInputFactory factory = XMLInputFactory.newFactory();
     XMLEventReader reader = factory.createXMLEventReader(new FileReader(confFile));
     HashMap<String,Object> currSvc = null;
+
+    String[] ruleArray = transCodeRule.split(",");
+    transStart = Integer.parseInt(ruleArray[0]);
+    transOffset = Integer.parseInt(ruleArray[1]);
 
     while (reader.hasNext()) {
       XMLEvent en = reader.nextEvent();
@@ -45,7 +50,7 @@ public class StaxDemo {
           if ("".equals(val)) continue;
           if ("Name".equals(key)) {
             int vallen = val.length();
-            String serviceStr = val.substring(vallen - 4, vallen);
+            String serviceStr = val.substring(transStart, transStart + transOffset);
             allSvcMap.put(serviceStr, currSvc);
             currSvc.put(key, serviceStr);
           } else {
@@ -180,7 +185,7 @@ public class StaxDemo {
     try {
       strList = serviceFiles.split(";");
       for (i = 0; i < strList.length; i++) {
-        StaxDemo.staxService(strList[i]);
+        StaxDemo.staxService(strList[i], transCodeRule);
       }
       strList = formatFiles.split(";");
       for (i = 0; i < strList.length; i++) {
@@ -218,7 +223,7 @@ public class StaxDemo {
       inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
       outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
       if (null == inFmt || null == outFmt) {
-        System.out.printf("No format for svc: %s(%s)", transName, transCode);
+        System.out.printf("No format for svc: %s(%s)\n", transName, transCode);
         continue;
       }
 
