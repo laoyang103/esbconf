@@ -160,6 +160,26 @@ public class StaxDemo {
     UrlImport.commitTemplateField(fieldArray);
   }
 
+  private static void getFmtAllitem(ArrayList<HashMap<String,Object>> itemCtx, HashMap<String,Object> fmt) {
+    String tmpStr, subName = null;
+    HashMap<String,Object> subFmt = null;
+    ArrayList<HashMap<String,Object>> items = null;
+
+    items = (ArrayList<HashMap<String,Object>> )fmt.get("items");
+    for (HashMap<String,Object> item: items) {
+      tmpStr = (String )item.get("SubName"); 
+      if (null != tmpStr && !"".equals(tmpStr)) {
+        subName = tmpStr;
+      }
+    }
+
+    if (null != subName) {
+      subFmt = (HashMap<String,Object> )allFmtMap.get(subName);
+      if (null != subFmt) getFmtAllitem(itemCtx, subFmt);
+    } 
+    itemCtx.addAll(items);
+  }
+
   public static void main(String[] args) {
     int i, masterReqId, masterResId;
     String systemCode, systemName;
@@ -198,8 +218,6 @@ public class StaxDemo {
       System.out.println(idmap);
 
       HashMap<String,Object> inFmt, outFmt;
-      ArrayList<HashMap<String,Object>> inItemList, outItemList;
-
       inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
       outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
       if (null == inFmt || null == outFmt) {
@@ -207,8 +225,11 @@ public class StaxDemo {
         continue;
       }
 
-      inItemList  = (ArrayList<HashMap<String,Object>> )inFmt.get("items");
-      outItemList = (ArrayList<HashMap<String,Object>> )outFmt.get("items");
+      ArrayList<HashMap<String,Object>> inItemList, outItemList;
+      inItemList  = new ArrayList<HashMap<String,Object>>();
+      outItemList = new ArrayList<HashMap<String,Object>>();
+      getFmtAllitem(inItemList,  inFmt);
+      getFmtAllitem(outItemList, outFmt);
 
       addTemplateItems(transReqId, inItemList);
       addTemplateItems(transResId, outItemList);
