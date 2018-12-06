@@ -90,7 +90,7 @@ public class UrlImport {
     return JSONArray.fromObject(ret.get("content"));
   }
 
-  public static void addTemplateField(JSONArray ctx, int templateId, int idx, int level, 
+  public static void addTemplateField(JSONArray ctx, int templateId, int idx, int level, int len, 
       String code, String name, String fieldType, String dataType, String required, String param1) {
     JSONObject content = new JSONObject();
 
@@ -101,6 +101,7 @@ public class UrlImport {
     content.put("fieldName", name);
     content.put("fieldType", fieldType);
     content.put("dataType", dataType);
+    content.put("fieldLength", len);
     content.put("required", required);
     content.put("param1", param1);
     content.put("param2", "");

@@ -40,56 +40,76 @@ public class StaxDemo {
   }
 
   private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList, String itemNameKey) {
-    int level, idx = 0;
-    String fieldType, IsMust, code, desc;
+    int layer, idx = 0, len;
+    String fieldType, IsMust, code, desc, dataType;
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
-      desc = (String )item.get("ItemDesc"); 
+      // 字段名称
       code = (String )item.get(itemNameKey); 
-      IsMust = (String )item.get("IsMust");
-      if ("no".equals(IsMust)) IsMust = "N";
-      else IsMust = "Y";
-      if ("yes".equals((String )item.get("ItemIgnr"))) {
-        level = 1; fieldType = "nesting-field";
-      } else {
-        level = 2; fieldType = "fixed-field";
-      }
       if (null == code) {
         System.out.println("Can not add item: " + item);
         continue;
       } 
-      if (null == desc) {
-        desc = "无描述";
-      }
-      UrlImport.addTemplateField(fieldArray, templateId, ++idx, level, code, desc, fieldType, "str", IsMust, "");
+      // 字段描述
+      desc = (String )item.get("ItemDesc"); 
+      if (null == desc) desc = "无描述";
+      // 域类型
+      fieldType = (String )item.get("_fieldType");
+      // 字段类型
+      dataType = (String )item.get("_dataType");
+      // 字段长度
+      len  = (Integer )item.get("_length"); 
+      // 字段层级
+      layer = (Integer )item.get("_layer"); 
+      // 必填标志
+      IsMust = (String )item.get("IsMust");
+      if ("no".equals(IsMust)) IsMust = "N";
+      else IsMust = "Y";
+      // 添加字段
+      UrlImport.addTemplateField(fieldArray, templateId, ++idx, layer, len, code, desc, fieldType, dataType, IsMust, "");
     }
     UrlImport.commitTemplateField(fieldArray);
   }
 
-  private static void getFmtAllitem(ArrayList<HashMap<String,Object>> itemCtx, HashMap<String,Object> fmt) {
+  private static void getFmtAllitem(ArrayList<HashMap<String,Object>> itemCtx, HashMap<String,Object> fmt, int layer) {
+    boolean haveNested = false;
     String tmpStr, subName = null;
     HashMap<String,Object> subFmt = null;
     ArrayList<HashMap<String,Object>> items = null;
 
     items = (ArrayList<HashMap<String,Object>> )fmt.get("items");
     for (HashMap<String,Object> item: items) {
+      if ("yes".equals((String )item.get("ItemIgnr"))) {
+        item.put("_fieldType", "nesting-field");
+        item.put("_layer", layer);
+        layer += 1;
+        continue;
+      }
+      item.put("_fieldType", "fixed-field");
+      item.put("_layer", layer);
       tmpStr = (String )item.get("SubName"); 
       if (null != tmpStr && !"".equals(tmpStr)) {
         subName = tmpStr;
       }
     }
+    itemCtx.addAll(items);
 
     if (null != subName) {
       subFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(subName);
-      if (null != subFmt) getFmtAllitem(itemCtx, subFmt);
+      if (null != subFmt) getFmtAllitem(itemCtx, subFmt, layer);
     } 
-    itemCtx.addAll(items);
   }
 
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
       String messageType, String messageEncoding) {
     int masterReqId, masterResId;
+
     String itemNameKey = "ElemName";
+    if (messageType.equals("xml")) {
+      itemNameKey = "XmlName";
+    } else if (messageType.equals("common")) {
+      itemNameKey = "ElemName";
+    }
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
     JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
@@ -124,34 +144,28 @@ public class StaxDemo {
         continue;
       }
 
-      ArrayList<HashMap<String,Object>> inItemList, outItemList;
+      ArrayList<HashMap<String,Object>> inItemList, outItemList, swapItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
       outItemList = new ArrayList<HashMap<String,Object>>();
 
       if (systemCode.endsWith("CLT") || systemCode.endsWith("CGET")) {
-        swapId = transReqId;
-        transReqId = transResId;
-        transResId = swapId;
+        swapItemList = inItemList;
+        inItemList = outItemList;
+        outItemList = swapItemList;
       }
 
-      if (messageType.equals("xml")) {
-        itemNameKey = "XmlName";
-      } else if (messageType.equals("common")) {
-        itemNameKey = "ElemName";
-      }
-
-      getFmtAllitem(inItemList, inFmt);
+      getFmtAllitem(inItemList, inFmt, 1);
       addTemplateItems(transReqId, inItemList, itemNameKey);
       if ("VC".equals(systemType)) {
-        getFmtAllitem(outItemList, outFmt);
+        getFmtAllitem(outItemList, outFmt, 1);
         addTemplateItems(transResId, outItemList, itemNameKey);
       }
     }
 
     JSONArray masterReqCtx = new JSONArray();
     JSONArray masterResCtx = new JSONArray();
-    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
     UrlImport.commitTemplateField(masterReqCtx);
     UrlImport.commitTemplateField(masterResCtx);
   }

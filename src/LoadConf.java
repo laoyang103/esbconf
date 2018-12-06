@@ -68,6 +68,8 @@ public class LoadConf {
         if ("".equals(val)) continue;
         currItem.put(key, val);
       }
+      currItem.put("_length", 0);
+      currItem.put("_dataType", "str");
       itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
       itemsList.add(currItem);
     }
@@ -79,10 +81,10 @@ public class LoadConf {
     cdata = reader.getText();
     if ("".equals(cdata)) return;
     if (currStart.equals("ItemExpr")) {
-      currItem.put("_type", "str");
+      currItem.put("_dataType", "str");
       for (i = 0; i < ibmCharList.length; i++) {
         if (-1 != cdata.indexOf(ibmPackList[i])) {
-          currItem.put("_type", "without-point-decima");
+          currItem.put("_dataType", "without-point-decima");
           break;
         }
       }
