@@ -39,13 +39,13 @@ public class StaxDemo {
     return idmap;
   }
 
-  private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList) {
+  private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList, String itemNameKey) {
     int level, idx = 0;
     String fieldType, IsMust, code, desc;
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
       desc = (String )item.get("ItemDesc"); 
-      code = (String )item.get("XmlName"); 
+      code = (String )item.get(itemNameKey); 
       IsMust = (String )item.get("IsMust");
       if ("no".equals(IsMust)) IsMust = "N";
       else IsMust = "Y";
@@ -89,6 +89,7 @@ public class StaxDemo {
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
       String messageType, String messageEncoding) {
     int masterReqId, masterResId;
+    String itemNameKey = "ElemName";
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
     JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
@@ -133,11 +134,17 @@ public class StaxDemo {
         transResId = swapId;
       }
 
+      if (messageType.equals("xml")) {
+        itemNameKey = "XmlName";
+      } else if (messageType.equals("common")) {
+        itemNameKey = "ElemName";
+      }
+
       getFmtAllitem(inItemList, inFmt);
-      addTemplateItems(transReqId, inItemList);
+      addTemplateItems(transReqId, inItemList, itemNameKey);
       if ("VC".equals(systemType)) {
         getFmtAllitem(outItemList, outFmt);
-        addTemplateItems(transResId, outItemList);
+        addTemplateItems(transResId, outItemList, itemNameKey);
       }
     }
 
@@ -154,20 +161,20 @@ public class StaxDemo {
         args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
         args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
         args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
-    // StaxDemo.addSystem(				              
-    //     args[0], 				                    // 系统名称
-    //     args[1], 				                    // 系统编码
-    //     "VC", 				                      // 系统编码
-    //     Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
-    //     args[3], 				                    // 报文类型
-    //     args[4]); 				                  // 编码类型
-    // StaxDemo.addSystem(				              
-    //     args[0], 				                    // 系统名称
-    //     args[1], 				                    // 系统编码
-    //     "VS", 				                      // 系统编码
-    //     Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
-    //     args[3], 				                    // 报文类型
-    //     args[4]); 				                  // 编码类型
+    StaxDemo.addSystem(				              
+        args[0], 				                    // 系统名称
+        args[1], 				                    // 系统编码
+        "VC", 				                      // 系统编码
+        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+        args[3], 				                    // 报文类型
+        args[4]); 				                  // 编码类型
+    StaxDemo.addSystem(				              
+        args[0], 				                    // 系统名称
+        args[1], 				                    // 系统编码
+        "VS", 				                      // 系统编码
+        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+        args[3], 				                    // 报文类型
+        args[4]); 				                  // 编码类型
   }
 }
 

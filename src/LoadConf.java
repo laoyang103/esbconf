@@ -178,7 +178,7 @@ public class LoadConf {
       for (i = 0; i < strList.length; i++) {
         LoadConf.loadFmt(strList[i]);
       }
-      System.out.println(allFmtMap);
+      // System.out.println(allFmtMap);
     } catch (Exception e) {
       e.printStackTrace();
     }
