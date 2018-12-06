@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -15,97 +16,6 @@ import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.events.Attribute;
 
 public class StaxDemo {
-
-  private static HashMap<String,Object> allFmtMap = null;
-  private static HashMap<String,Object> allSvcMap = null;
-
-  static {
-    allFmtMap = new HashMap<String,Object>();
-    allSvcMap = new HashMap<String,Object>();
-  }
-
-  private static void staxService(String confFile, String transCodeRule) throws FileNotFoundException, XMLStreamException {
-    String key, val; 
-    int transStart, transOffset;
-    Attribute attr = null;
-    XMLInputFactory factory = XMLInputFactory.newFactory();
-    XMLEventReader reader = factory.createXMLEventReader(new FileReader(confFile));
-    HashMap<String,Object> currSvc = null;
-
-    String[] ruleArray = transCodeRule.split(",");
-    transStart = Integer.parseInt(ruleArray[0]);
-    transOffset = Integer.parseInt(ruleArray[1]);
-
-    while (reader.hasNext()) {
-      XMLEvent en = reader.nextEvent();
-      if (!en.isStartElement()) continue;
-      StartElement se = en.asStartElement();
-      if (se.getName().getLocalPart().equals("Service")) {
-        currSvc = new HashMap<String,Object>();
-        Iterator iter = se.getAttributes();
-        while (iter.hasNext()) {
-          attr = (Attribute )iter.next();
-          key = attr.getName().toString();
-          val = attr.getValue();
-          if ("".equals(val)) continue;
-          if ("Name".equals(key)) {
-            int vallen = val.length();
-            String serviceStr = val.substring(transStart, transStart + transOffset);
-            allSvcMap.put(serviceStr, currSvc);
-            currSvc.put(key, serviceStr);
-          } else {
-            currSvc.put(key, val);
-          }
-        }
-      }
-    }
-  }
-
-  private static void staxFmt(String confFile) throws FileNotFoundException, XMLStreamException {
-    String key, val;
-    Attribute attr = null;
-    XMLInputFactory factory = XMLInputFactory.newFactory();
-    XMLEventReader reader = factory.createXMLEventReader(new FileReader(confFile));
-    HashMap<String,Object> currFmt = null;
-    ArrayList<HashMap<String,Object>> itemsList = null;
-
-    while (reader.hasNext()) {
-      XMLEvent en = reader.nextEvent();
-      if (!en.isStartElement()) continue;
-
-      StartElement se = en.asStartElement();
-      if (se.getName().getLocalPart().equals("Format")) {
-        currFmt = new HashMap<String,Object>();
-        currFmt.put("items", new ArrayList<HashMap<String,Object>>());
-
-        Iterator iter = se.getAttributes();
-        while (iter.hasNext()) {
-          attr = (Attribute )iter.next();
-          key = attr.getName().toString();
-          val = attr.getValue();
-          if ("".equals(val)) continue;
-          if ("FmtName".equals(key)) {
-            allFmtMap.put(val, currFmt);
-          }
-          currFmt.put(key, val);
-        }
-      }
-
-      if (se.getName().getLocalPart().equals("Item")) {
-        Iterator iter = se.getAttributes();
-        HashMap<String,Object> itemMap = new HashMap<String,Object>();
-        while (iter.hasNext()) {
-          attr = (Attribute )iter.next();
-          key = attr.getName().toString();
-          val = attr.getValue();
-          if ("".equals(val)) continue;
-          itemMap.put(key, val);
-        }
-        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
-        itemsList.add(itemMap);
-      }
-    }
-  }
 
   private static HashMap<String, Integer> getTemplateIdMap(JSONArray transList, String transCode) {
     int i;
@@ -170,7 +80,7 @@ public class StaxDemo {
     }
 
     if (null != subName) {
-      subFmt = (HashMap<String,Object> )allFmtMap.get(subName);
+      subFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(subName);
       if (null != subFmt) getFmtAllitem(itemCtx, subFmt);
     } 
     itemCtx.addAll(items);
@@ -189,9 +99,9 @@ public class StaxDemo {
     System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d]\n", 
         systemName, systemCode, systemType, masterReqId, masterResId);
 
-    for (String key : allSvcMap.keySet()) {
+    for (String key : LoadConf.allSvcMap.keySet()) {
       int transReqId = 0, transResId = 0, swapId;
-      HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
+      HashMap<String, Object> svc = (HashMap<String, Object> )LoadConf.allSvcMap.get(key);
 
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
@@ -206,8 +116,8 @@ public class StaxDemo {
           transName, transCode, transReqId, transResId);
 
       HashMap<String,Object> inFmt, outFmt;
-      inFmt  = (HashMap<String,Object> )allFmtMap.get((String )svc.get("IFmt"));
-      outFmt = (HashMap<String,Object> )allFmtMap.get((String )svc.get("OFmt"));
+      inFmt  = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("IFmt"));
+      outFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("OFmt"));
       if (null == inFmt || null == outFmt) {
         System.out.printf("No format for svc: %s(%s)\n", transName, transCode);
         continue;
@@ -239,42 +149,25 @@ public class StaxDemo {
     UrlImport.commitTemplateField(masterResCtx);
   }
 
-  public static void loadConf(String formatFiles, String serviceFiles, String transCodeRule) {
-    int i;
-    String[] strList = null;
-    try {
-      strList = serviceFiles.split(";");
-      for (i = 0; i < strList.length; i++) {
-        StaxDemo.staxService(strList[i], transCodeRule);
-      }
-      strList = formatFiles.split(";");
-      for (i = 0; i < strList.length; i++) {
-        StaxDemo.staxFmt(strList[i]);
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-  }
-
   public static void main(String[] args) {
-    StaxDemo.loadConf(				              
+    LoadConf.load(				              
         args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
         args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
         args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
-    StaxDemo.addSystem(				              
-        args[0], 				                    // 系统名称
-        args[1], 				                    // 系统编码
-        "VC", 				                      // 系统编码
-        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
-        args[3], 				                    // 报文类型
-        args[4]); 				                  // 编码类型
-    StaxDemo.addSystem(				              
-        args[0], 				                    // 系统名称
-        args[1], 				                    // 系统编码
-        "VS", 				                      // 系统编码
-        Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
-        args[3], 				                    // 报文类型
-        args[4]); 				                  // 编码类型
+    // StaxDemo.addSystem(				              
+    //     args[0], 				                    // 系统名称
+    //     args[1], 				                    // 系统编码
+    //     "VC", 				                      // 系统编码
+    //     Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+    //     args[3], 				                    // 报文类型
+    //     args[4]); 				                  // 编码类型
+    // StaxDemo.addSystem(				              
+    //     args[0], 				                    // 系统名称
+    //     args[1], 				                    // 系统编码
+    //     "VS", 				                      // 系统编码
+    //     Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
+    //     args[3], 				                    // 报文类型
+    //     args[4]); 				                  // 编码类型
   }
 }
 
