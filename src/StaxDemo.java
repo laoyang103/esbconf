@@ -41,7 +41,8 @@ public class StaxDemo {
 
   private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList, String itemNameKey) {
     int layer, idx = 0, len;
-    String fieldType, IsMust, code, desc, dataType;
+    String param1 = "";
+    String fieldType, IsMust, code, desc, dataType, align; 
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
       // 字段名称
@@ -65,8 +66,13 @@ public class StaxDemo {
       IsMust = (String )item.get("IsMust");
       if ("no".equals(IsMust)) IsMust = "N";
       else IsMust = "Y";
+      // 左右对其标志
+      align = (String )item.get("ItemAdj");
+      if ("left".equals(align) || "right".equals(align)) {
+        param1 = align;
+      }
       // 添加字段
-      UrlImport.addTemplateField(fieldArray, templateId, ++idx, layer, len, code, desc, fieldType, dataType, IsMust, "");
+      UrlImport.addTemplateField(fieldArray, templateId, ++idx, layer, len, code, desc, fieldType, dataType, IsMust, param1);
     }
     UrlImport.commitTemplateField(fieldArray);
   }
