@@ -3,18 +3,13 @@ import java.io.FileReader;
 import java.io.BufferedReader;;
 import java.io.IOException;;
 
-import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.events.Attribute;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -42,7 +37,6 @@ public class LoadConf {
   private static void processFmtStart(XMLStreamReader reader) {
     int i, nattr;
     String key, val;
-    Attribute attr = null;
     ArrayList<HashMap<String,Object>> itemsList = null;
 
     currStart = reader.getLocalName();
@@ -126,7 +120,6 @@ public class LoadConf {
   public static void loadSvc(String confFile, String transCodeRule) throws FileNotFoundException, XMLStreamException {
     String key, val; 
     int i, nattr, transStart, transOffset;
-    Attribute attr = null;
     XMLInputFactory factory = XMLInputFactory.newFactory();
     XMLStreamReader reader = factory.createXMLStreamReader(new FileReader(confFile));
     HashMap<String,Object> currSvc = null;
@@ -176,8 +169,8 @@ public class LoadConf {
     while ((line = br.readLine()) != null) {
       HashMap<String,Object> fieldMap = new HashMap<String,Object>();
       String[] lineSplit = line.split(",");
-      fieldMap.put("num" 			  , Integer.parseInt(lineSplit[0]));
-      fieldMap.put("_name" 			, lineSplit[1]);
+      fieldMap.put("_name" 			, lineSplit[0]);
+      fieldMap.put("ItemDesc"   , lineSplit[1]);
       fieldMap.put("_dataType"  , lineSplit[2]);
       fieldMap.put("_length" 		, Integer.parseInt(lineSplit[3]));
       fieldMap.put("IsMust" 	  , lineSplit[4]);

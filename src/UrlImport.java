@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import net.sf.json.JSONArray;

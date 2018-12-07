@@ -1,19 +1,8 @@
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.util.Iterator;
 import java.util.HashMap;
 import java.util.ArrayList;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.events.StartElement;
-import javax.xml.stream.events.XMLEvent;
-import javax.xml.stream.events.Attribute;
 
 public class StaxDemo {
 
