@@ -23,6 +23,7 @@ public class LoadConf {
   private static String currStart = null;
   private static HashMap<String,Object> currFmt = null;
   private static HashMap<String,Object> currItem = null;
+  private static HashMap<String,Object> lastTagItem = null;
 
   private static String[] ibmCharList = new String[]{"ATOEA", "ETOAA", "ATOEO", "ETOAO"};
   private static String[] ibmPackList = new String[]{"enum_num_to_pack", "enum_pack_to_num", "NumToPack_zero", "PackToNum_zero"};
@@ -66,34 +67,45 @@ public class LoadConf {
       }
       currItem.put("_length", 0);
       currItem.put("_dataType", "str");
-      itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
-      itemsList.add(currItem);
+      if ("tag".equals((String )currItem.get("XmlType"))) {
+        lastTagItem = currItem;
+        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
+        itemsList.add(currItem);
+      }
     }
   }
 
   private static void processFmtCDATA(XMLStreamReader reader) {
     int i, len;
-    String cdata;
+    String cdata, newName;
     cdata = reader.getText();
-    if ("".equals(cdata)) return;
-    if (currStart.equals("ItemExpr")) {
-      currItem.put("_dataType", "str");
-      for (i = 0; i < ibmCharList.length; i++) {
-        if (-1 != cdata.indexOf(ibmPackList[i])) {
-          currItem.put("_dataType", "without-point-decima");
-          break;
-        }
+    if (null == currItem || null == lastTagItem) return;
+    if ("attr".equals(currItem.get("XmlType"))) {
+      if (currStart.equals("ConstData")) {
+        newName = String.format("%s[%s=%s]", lastTagItem.get("XmlName"), currItem.get("XmlName"), cdata.replace("\"", ""));
+        lastTagItem.put("XmlName", newName);
       }
     }
-    if (currStart.equals("LenDataExpr")) {
-      len = 0;
-      if (-1 != cdata.indexOf("enum_get_fld_len")) {
-        String lenStr = cdata.split("\"")[3];
-        len = enumNumMap.get(lenStr);
-      } else if (StringUtils.isNumeric(cdata)) {
-        len = Integer.parseInt(cdata);
+    if ("tag".equals(currItem.get("XmlType")) && !"".equals(cdata)) {
+      if (currStart.equals("ItemExpr")) {
+        currItem.put("_dataType", "str");
+        for (i = 0; i < ibmCharList.length; i++) {
+          if (-1 != cdata.indexOf(ibmPackList[i])) {
+            currItem.put("_dataType", "without-point-decima");
+            break;
+          }
+        }
       }
-      currItem.put("_length", len);
+      if (currStart.equals("LenDataExpr")) {
+        len = 0;
+        if (-1 != cdata.indexOf("enum_get_fld_len")) {
+          String lenStr = cdata.split("\"")[3];
+          len = enumNumMap.get(lenStr);
+        } else if (StringUtils.isNumeric(cdata)) {
+          len = Integer.parseInt(cdata);
+        }
+        currItem.put("_length", len);
+      }
     }
   }
 
