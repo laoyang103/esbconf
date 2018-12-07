@@ -91,7 +91,8 @@ public class UrlImport {
   }
 
   public static void addTemplateField(JSONArray ctx, int templateId, int idx, int level, int len, 
-      String code, String name, String fieldType, String dataType, String required, String param1) {
+      String code, String name, String fieldType, String dataType, String required, 
+      String param1, String param2, String param3, String dataEncoding) {
     JSONObject content = new JSONObject();
 
     content.put("templateId", templateId);
@@ -104,11 +105,11 @@ public class UrlImport {
     content.put("fieldLength", len);
     content.put("required", required);
     content.put("param1", param1);
-    content.put("param2", "");
-    content.put("param3", "");
+    content.put("param2", param2);
+    content.put("param3", param3);
     content.put("format", "");
     content.put("fieldSystemCode", "");
-    content.put("dataEncoding", "GB2312");
+    content.put("dataEncoding", dataEncoding);
     content.put("fieldPermission", "W");
     content.put("postParseEventType", "");
     content.put("postParseEventCode", "");

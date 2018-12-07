@@ -17,18 +17,18 @@ import javax.xml.stream.events.Attribute;
 
 public class StaxDemo {
 
-  private static HashMap<String, Integer> getTemplateIdMap(JSONArray transList, String transCode) {
+  private static HashMap<String, Integer> getTemplateIdMap(JSONArray transList) {
     int i;
     HashMap<String, Integer> idmap = new HashMap<String, Integer>();
     for (i = 0; i < transList.size(); i++) {
       JSONObject trans = transList.getJSONObject(i);
-      if ("master".equals(transCode) && "master".equals(trans.get("messageCode"))) {
+      if ("master".equals(trans.get("messageCode"))) {
         if ("I".equals(trans.get("messageIo"))) {
           idmap.put("masterReqId", (Integer )trans.get("id"));
         } else {
           idmap.put("masterResId", (Integer )trans.get("id"));
         }
-      } else if (transCode.equals(trans.get("messageCode"))) {
+      } else {
         if ("I".equals(trans.get("messageIo"))) {
           idmap.put("transReqId", (Integer )trans.get("id"));
         } else {
@@ -39,9 +39,10 @@ public class StaxDemo {
     return idmap;
   }
 
-  private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList, String itemNameKey) {
+  private static void addTemplateItems(int templateId, ArrayList<HashMap<String,Object>> itemList, 
+      String itemNameKey, String dataEncoding) {
     int layer, idx = 0, len;
-    String param1 = "";
+    String param1 = "", param2 = "", param3 = "";
     String fieldType, IsMust, code, desc, dataType, align; 
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
@@ -66,13 +67,22 @@ public class StaxDemo {
       IsMust = (String )item.get("IsMust");
       if ("no".equals(IsMust)) IsMust = "N";
       else IsMust = "Y";
-      // 左右对其标志
+      // 参数1
+      param1 = (String )item.get("param1");
+      if (null == param1) param1 = "";
       align = (String )item.get("ItemAdj");
-      if ("left".equals(align) || "right".equals(align)) {
+      if (null != align && ("left".equals(align) || "right".equals(align))) {
         param1 = align;
       }
+      // 参数2
+      param2 = (String )item.get("param2");
+      if (null == param2) param2 = "";
+      // 参数3
+      param3 = (String )item.get("param3");
+      if (null == param3) param3 = "";
       // 添加字段
-      UrlImport.addTemplateField(fieldArray, templateId, ++idx, layer, len, code, desc, fieldType, dataType, IsMust, param1);
+      UrlImport.addTemplateField(fieldArray, templateId, ++idx, layer, len, code, desc, 
+          fieldType, dataType, IsMust, param1, param2, param3, dataEncoding);
     }
     UrlImport.commitTemplateField(fieldArray);
   }
@@ -110,6 +120,11 @@ public class StaxDemo {
       String messageType, String messageEncoding) {
     int masterReqId, masterResId;
 
+    if ("8583".equals(messageType)) {
+      add8583System(systemCode, systemName, systemType, commType, messageType, messageEncoding);
+      return ;
+    }
+
     String itemNameKey = "ElemName";
     if (messageType.equals("xml")) {
       itemNameKey = "XmlName";
@@ -119,7 +134,7 @@ public class StaxDemo {
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
     JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
-    HashMap<String, Integer> idmap = getTemplateIdMap(transList, "master");
+    HashMap<String, Integer> idmap = getTemplateIdMap(transList);
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");
 
@@ -133,7 +148,7 @@ public class StaxDemo {
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName);
-      idmap = getTemplateIdMap(transList, transCode);
+      idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
       if ("VC".equals(systemType)) {
         transResId = idmap.get("transResId");
@@ -161,17 +176,51 @@ public class StaxDemo {
       }
 
       getFmtAllitem(inItemList, inFmt, 1);
-      addTemplateItems(transReqId, inItemList, itemNameKey);
+      addTemplateItems(transReqId, inItemList, itemNameKey, messageEncoding);
       if ("VC".equals(systemType)) {
         getFmtAllitem(outItemList, outFmt, 1);
-        addTemplateItems(transResId, outItemList, itemNameKey);
+        addTemplateItems(transResId, outItemList, itemNameKey, messageEncoding);
       }
     }
 
     JSONArray masterReqCtx = new JSONArray();
     JSONArray masterResCtx = new JSONArray();
-    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
-    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "");
+    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
+    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
+    UrlImport.commitTemplateField(masterReqCtx);
+    UrlImport.commitTemplateField(masterResCtx);
+  }
+
+  public static void add8583System(String systemCode, String systemName, String systemType, int commType, 
+      String messageType, String messageEncoding) {
+    String itemNameKey = "name";
+    int masterReqId, masterResId, transReqId = 0, transResId = 0;
+    String transCode = "Default", transName = "Default";
+
+    UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
+    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName);
+    HashMap<String, Integer> idmap = getTemplateIdMap(transList);
+    masterReqId = idmap.get("masterReqId");
+    masterResId = idmap.get("masterResId");
+    transReqId = idmap.get("transReqId");
+    if ("VC".equals(systemType)) {
+      transResId = idmap.get("transResId");
+    }
+
+    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d]\n", 
+        systemName, systemCode, systemType, masterReqId, masterResId);
+    System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
+        transName, transCode, transReqId, transResId);
+
+    addTemplateItems(transReqId, LoadConf.allFmtMap8583, "_name", messageEncoding);
+    if ("VC".equals(systemType)) {
+      addTemplateItems(transResId, LoadConf.allFmtMap8583, "_name", messageEncoding);
+    }
+
+    JSONArray masterReqCtx = new JSONArray();
+    JSONArray masterResCtx = new JSONArray();
+    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
+    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
     UrlImport.commitTemplateField(masterReqCtx);
     UrlImport.commitTemplateField(masterResCtx);
   }

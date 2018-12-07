@@ -22,6 +22,7 @@ public class LoadConf {
 
   public static HashMap<String,Object> allFmtMap = null;
   public static HashMap<String,Object> allSvcMap = null;
+  public static ArrayList<HashMap<String,Object>> allFmtMap8583 = null;
   public static HashMap<String,Integer> enumNumMap = null;
 
   private static String currStart = null;
@@ -34,6 +35,7 @@ public class LoadConf {
   static {
     allFmtMap = new HashMap<String,Object>();
     allSvcMap = new HashMap<String,Object>();
+    allFmtMap8583 = new ArrayList<HashMap<String,Object>>();
     enumNumMap = new HashMap<String,Integer>();
   }
 
@@ -167,10 +169,38 @@ public class LoadConf {
     reader.close();
   }
 
+  public static void loadFmt8583(String csvFile) throws FileNotFoundException, IOException {
+    String line = null;
+    FileReader reader = new FileReader(csvFile);
+    BufferedReader br = new BufferedReader(reader);
+    while ((line = br.readLine()) != null) {
+      HashMap<String,Object> fieldMap = new HashMap<String,Object>();
+      String[] lineSplit = line.split(",");
+      fieldMap.put("num" 			  , Integer.parseInt(lineSplit[0]));
+      fieldMap.put("_name" 			, lineSplit[1]);
+      fieldMap.put("_dataType"  , lineSplit[2]);
+      fieldMap.put("_length" 		, Integer.parseInt(lineSplit[3]));
+      fieldMap.put("IsMust" 	  , lineSplit[4]);
+      fieldMap.put("_fieldType" , lineSplit[5]);
+      fieldMap.put("param1" 		, lineSplit[6]);
+      fieldMap.put("param2" 		, lineSplit[7]);
+      fieldMap.put("param3" 		, lineSplit[8]);
+      fieldMap.put("encode" 		, lineSplit[9]);
+      fieldMap.put("_layer" 		, 1);
+      allFmtMap8583.add(fieldMap);
+    }
+    br.close();
+    reader.close();
+  }
+
   public static void load(String formatFiles, String serviceFiles, String transCodeRule) {
     int i;
     String[] strList = null;
     try {
+      if ("None".equals(serviceFiles) && "None".equals(transCodeRule)) {
+        loadFmt8583(formatFiles);
+        return ;
+      }
       loadEnumNum("origin/enum_number.txt");
       strList = serviceFiles.split(";");
       for (i = 0; i < strList.length; i++) {

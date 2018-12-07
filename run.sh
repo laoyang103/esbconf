@@ -23,5 +23,16 @@ elif [ "common" == $1 ]; then
   origin/CBS_CLT/format.xml \
   origin/CBS_CLT/service.xml \
   4,4
+elif [ "8583" == $1 ]; then
+  java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
+  `date +%s`YJN8583 \
+  `date +%s`YJN8583 \
+  2 \
+  $1 \
+  GB2312 \
+  origin/8583.csv \
+  None \
+  None
 fi
+
 
