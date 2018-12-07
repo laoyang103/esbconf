@@ -122,7 +122,7 @@ public class StaxDemo {
     }
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
-    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default");
+    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default", messageType, messageEncoding);
     HashMap<String, Integer> idmap = getTemplateIdMap(transList);
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");
@@ -136,7 +136,7 @@ public class StaxDemo {
 
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
-      transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName);
+      transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
       idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
       if ("VC".equals(systemType)) {
@@ -187,7 +187,7 @@ public class StaxDemo {
     String transCode = "Default", transName = "Default";
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
-    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName);
+    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
     HashMap<String, Integer> idmap = getTemplateIdMap(transList);
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");

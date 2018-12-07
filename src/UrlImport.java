@@ -71,7 +71,8 @@ public class UrlImport {
     return 0;
   }
 
-  public static JSONArray addMockTrans(String systemCode, String systemType, String transCode, String transName) {
+  public static JSONArray addMockTrans(String systemCode, String systemType, String transCode, 
+      String transName, String messageType, String messageEncoding) {
     JSONObject content = new JSONObject();
     JSONArray array = new JSONArray();
 
@@ -79,6 +80,8 @@ public class UrlImport {
     content.put("transName", transName);
     content.put("transCode", transCode);
     content.put("mockType", systemType);
+    content.put("messageType", messageType);
+    content.put("messageEncoding", messageEncoding);
     content.put("testStatus", "0");
     array.add(content);
 
