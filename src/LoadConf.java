@@ -25,6 +25,8 @@ public class LoadConf {
   private static HashMap<String,Object> currItem = null;
   private static HashMap<String,Object> lastTagItem = null;
 
+  private static HashMap<String,Integer> svcNameMap = null;
+
   private static String[] ibmCharList = new String[]{"ATOEA", "ETOAA", "ATOEO", "ETOAO"};
   private static String[] ibmPackList = new String[]{"enum_num_to_pack", "enum_pack_to_num", "NumToPack_zero", "PackToNum_zero"};
 
@@ -33,6 +35,7 @@ public class LoadConf {
     allSvcMap = new HashMap<String,Object>();
     allFmtMap8583 = new ArrayList<HashMap<String,Object>>();
     enumNumMap = new HashMap<String,Integer>();
+    svcNameMap = new HashMap<String,Integer>();
   }
 
   private static void processFmtStart(XMLStreamReader reader) {
@@ -150,6 +153,15 @@ public class LoadConf {
         key = reader.getAttributeLocalName(i);
         val = reader.getAttributeValue(i);
         if ("".equals(val)) continue;
+        if ("SvcDesc".equals(key)) {
+          Integer num = svcNameMap.get(val);
+          if (null == num) {
+            svcNameMap.put(val, 0);
+          } else {
+            svcNameMap.put(val, num + 1);
+            val += num;
+          }
+        }
         if ("Name".equals(key)) {
           int vallen = val.length();
           String serviceStr = val.substring(transStart, transStart + transOffset);

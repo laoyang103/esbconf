@@ -5,13 +5,13 @@ javac -encoding utf-8 -Djava.ext.dirs=./lib  -d classes `find ./src/ -name *.jav
 
 if [ "xml" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
-  `date +%s`ABC2_SVR \
+  `date +%s`LCSA_CLT \
   `date +%s`理财 \
   2 \
   $1 \
   GB2312 \
-  origin/ABC2_SVR/format.xml \
-  origin/ABC2_SVR/service.xml \
+  origin/LCSA/Format.xml\;origin/LCSA/LCSA_CLT/Format.xml \
+  origin/LCSA/LCSA_CLT/Service.xml \
   4,4
 elif [ "common" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \

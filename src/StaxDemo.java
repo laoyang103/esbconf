@@ -44,6 +44,7 @@ public class StaxDemo {
       // 字段描述
       desc = (String )item.get("ItemDesc"); 
       if (null == desc) desc = "无描述";
+      if (desc.length() > 40) desc = desc.substring(0, 41);
       // 域类型
       fieldType = (String )item.get("_fieldType");
       // 字段类型
@@ -137,6 +138,7 @@ public class StaxDemo {
       String transCode = (String )svc.get("Name");
       String transName = (String )svc.get("SvcDesc");
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
+      System.out.printf("ffffffffff Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
       idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
       if ("VC".equals(systemType)) {
