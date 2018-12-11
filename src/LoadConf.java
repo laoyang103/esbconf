@@ -72,7 +72,7 @@ public class LoadConf {
       currItem.put("_length", 0);
       currItem.put("_dataType", "str");
       String elemName = (String )currItem.get("ElemName");
-      if (null != elemName && 0 == "ISO_8583_".indexOf(elemName)) {
+      if (null != elemName && 0 == elemName.indexOf("ISO_8583_")) {
         lastTagItem = (HashMap<String,Object> )enum8583Map.get(elemName.substring(9, 12));
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(lastTagItem);
@@ -80,6 +80,8 @@ public class LoadConf {
         lastTagItem = currItem;
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
+      } else {
+        // System.out.println("Can not add item:" + currItem);
       }
     }
   }

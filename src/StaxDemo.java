@@ -115,6 +115,8 @@ public class StaxDemo {
       itemNameKey = "XmlName";
     } else if (messageType.equals("common")) {
       itemNameKey = "ElemName";
+    } else if (messageType.equals("8583")) {
+      itemNameKey = "_name";
     }
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
@@ -133,6 +135,7 @@ public class StaxDemo {
       String transCode = (String )svc.get("Name");
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
+
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
