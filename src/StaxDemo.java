@@ -138,7 +138,7 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      // if (!"中间业务交易单笔明细查询".equals(transName)) continue;
+      // if (!"综合理财签约".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
@@ -151,18 +151,18 @@ public class StaxDemo {
       System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
           transName, transCode, transReqId, transResId);
 
-      HashMap<String,Object> inFmt, outFmt;
+      HashMap<String,Object> inFmt, outFmt, swapFmt;
       inFmt  = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("IFmt"));
       outFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("OFmt"));
 
-      ArrayList<HashMap<String,Object>> inItemList, outItemList, swapItemList;
+      ArrayList<HashMap<String,Object>> inItemList, outItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
       outItemList = new ArrayList<HashMap<String,Object>>();
 
-      if (systemCode.endsWith("CLT") || systemCode.endsWith("CGET")) {
-        swapItemList = inItemList;
-        inItemList = outItemList;
-        outItemList = swapItemList;
+      if (systemCode.endsWith("CLT") || systemCode.endsWith("CGET") || systemCode.endsWith("CPUT")) {
+        swapFmt = inFmt;
+        inFmt = outFmt;
+        outFmt = swapFmt;
       }
 
       if (null != inFmt) {
