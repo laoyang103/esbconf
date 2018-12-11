@@ -100,6 +100,8 @@ public class StaxDemo {
     }
     itemCtx.addAll(items);
 
+    System.out.printf("Add format %s num %d real %d\n", fmt.get("FmtName"), fmt.get("_count"), items.size());
+
     if (null != subName) {
       subFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(subName);
       if (null != subFmt) getFmtAllitem(itemCtx, subFmt, layer);
@@ -125,8 +127,8 @@ public class StaxDemo {
     masterReqId = idmap.get("masterReqId");
     masterResId = idmap.get("masterResId");
 
-    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d]\n", 
-        systemName, systemCode, systemType, masterReqId, masterResId);
+    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d] [svcCount=%d] [realSvcCount=%d]\n", 
+        systemName, systemCode, systemType, masterReqId, masterResId, LoadConf.svcCount, LoadConf.allSvcMap.size());
 
     for (String key : LoadConf.allSvcMap.keySet()) {
       int transReqId = 0, transResId = 0, swapId;

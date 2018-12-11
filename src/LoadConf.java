@@ -16,6 +16,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class LoadConf {
 
+  public static int svcCount = 0;
   public static HashMap<String,Object> allFmtMap = null;
   public static HashMap<String,Object> allSvcMap = null;
   public static HashMap<String,Object> enum8583Map = null;
@@ -27,6 +28,7 @@ public class LoadConf {
   private static HashMap<String,Object> lastTagItem = null;
 
   private static HashMap<String,Integer> svcNameMap = null;
+  private static HashMap<String,Integer> svcCodeMap = null;
 
   private static String[] ibmCharList = new String[]{"ATOEA", "ETOAA", "ATOEO", "ETOAO"};
   private static String[] ibmPackList = new String[]{"enum_num_to_pack", "enum_pack_to_num", "NumToPack_zero", "PackToNum_zero"};
@@ -37,6 +39,7 @@ public class LoadConf {
     enum8583Map = new HashMap<String,Object>();
     enumNumMap = new HashMap<String,Integer>();
     svcNameMap = new HashMap<String,Integer>();
+    svcCodeMap = new HashMap<String,Integer>();
   }
 
   private static void processFmtStart(XMLStreamReader reader) {
@@ -60,6 +63,19 @@ public class LoadConf {
         currFmt.put(key, val);
       }
     }
+
+    if (reader.getLocalName().equals("ItemTab")) {
+      nattr = reader.getAttributeCount();
+      for(i = 0; i < nattr; i++) {
+        key = reader.getAttributeLocalName(i);
+        val = reader.getAttributeValue(i);
+        if ("RecNum".equals(key)) {
+          currFmt.put("_count", Integer.parseInt(val));
+          break;
+        }
+      }
+    }
+
     if (reader.getLocalName().equals("Item")) {
       currItem = new HashMap<String,Object>();
       nattr = reader.getAttributeCount();
@@ -81,7 +97,8 @@ public class LoadConf {
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
       } else {
-        // System.out.println("Can not add item:" + currItem);
+        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
+        itemsList.add(currItem);
       }
     }
   }
@@ -153,30 +170,47 @@ public class LoadConf {
 
     while (reader.hasNext()) {
       if (XMLStreamConstants.START_ELEMENT != reader.next()) continue;
-      if (!reader.getLocalName().equals("Service")) continue;
-
-      currSvc = new HashMap<String,Object>();
-      nattr = reader.getAttributeCount();
-      for(i = 0; i < nattr; i++) {
-        key = reader.getAttributeLocalName(i);
-        val = reader.getAttributeValue(i);
-        if ("".equals(val)) continue;
-        if ("SvcDesc".equals(key)) {
-          Integer num = svcNameMap.get(val);
-          if (null == num) {
-            svcNameMap.put(val, 0);
-          } else {
-            svcNameMap.put(val, num + 1);
-            val += num;
+      if (reader.getLocalName().equals("ServiceTab")) {
+        nattr = reader.getAttributeCount();
+        for(i = 0; i < nattr; i++) {
+          key = reader.getAttributeLocalName(i);
+          val = reader.getAttributeValue(i);
+          if ("RecNum".equals(key)) {
+            svcCount = Integer.parseInt(val);
+            break;
           }
         }
-        if ("Name".equals(key)) {
-          int vallen = val.length();
-          String serviceStr = val.substring(transStart, transStart + transOffset);
-          allSvcMap.put(serviceStr, currSvc);
-          currSvc.put(key, serviceStr);
-        } else {
-          currSvc.put(key, val);
+      }
+      if (reader.getLocalName().equals("Service")) {
+        currSvc = new HashMap<String,Object>();
+        nattr = reader.getAttributeCount();
+        for(i = 0; i < nattr; i++) {
+          key = reader.getAttributeLocalName(i);
+          val = reader.getAttributeValue(i);
+          if ("".equals(val)) continue;
+          if ("SvcDesc".equals(key)) {
+            Integer num = svcNameMap.get(val);
+            if (null == num) {
+              svcNameMap.put(val, 0);
+            } else {
+              svcNameMap.put(val, num + 1);
+              val += num;
+            }
+          }
+          if ("Name".equals(key)) {
+            String serviceStr = val.substring(transStart, transStart + transOffset);
+            Integer num = svcCodeMap.get(serviceStr);
+            if (null == num) {
+              svcCodeMap.put(serviceStr, 0);
+            } else {
+              svcCodeMap.put(serviceStr, num + 1);
+              serviceStr += num;
+            }
+            allSvcMap.put(serviceStr, currSvc);
+            currSvc.put(key, serviceStr);
+          } else {
+            currSvc.put(key, val);
+          }
         }
       }
     }
