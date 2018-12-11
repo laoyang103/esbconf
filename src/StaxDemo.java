@@ -136,6 +136,7 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
+      // if (!"中间业务交易单笔明细查询".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
@@ -151,10 +152,6 @@ public class StaxDemo {
       HashMap<String,Object> inFmt, outFmt;
       inFmt  = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("IFmt"));
       outFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("OFmt"));
-      if (null == inFmt || null == outFmt) {
-        System.out.printf("No format for svc: %s(%s)\n", transName, transCode);
-        continue;
-      }
 
       ArrayList<HashMap<String,Object>> inItemList, outItemList, swapItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
@@ -166,9 +163,11 @@ public class StaxDemo {
         outItemList = swapItemList;
       }
 
-      getFmtAllitem(inItemList, inFmt, 1);
-      addTemplateItems(transReqId, inItemList, itemNameKey, messageEncoding);
-      if ("VC".equals(systemType)) {
+      if (null != inFmt) {
+        getFmtAllitem(inItemList, inFmt, 1);
+        addTemplateItems(transReqId, inItemList, itemNameKey, messageEncoding);
+      }
+      if (null != outFmt && "VC".equals(systemType)) {
         getFmtAllitem(outItemList, outFmt, 1);
         addTemplateItems(transResId, outItemList, itemNameKey, messageEncoding);
       }
