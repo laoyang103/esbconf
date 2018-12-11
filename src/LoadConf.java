@@ -28,7 +28,6 @@ public class LoadConf {
   private static HashMap<String,Object> lastTagItem = null;
 
   private static HashMap<String,Integer> svcNameMap = null;
-  private static HashMap<String,Integer> svcCodeMap = null;
 
   private static String[] ibmCharList = new String[]{"ATOEA", "ETOAA", "ATOEO", "ETOAO"};
   private static String[] ibmPackList = new String[]{"enum_num_to_pack", "enum_pack_to_num", "NumToPack_zero", "PackToNum_zero"};
@@ -39,7 +38,6 @@ public class LoadConf {
     enum8583Map = new HashMap<String,Object>();
     enumNumMap = new HashMap<String,Integer>();
     svcNameMap = new HashMap<String,Integer>();
-    svcCodeMap = new HashMap<String,Integer>();
   }
 
   private static void processFmtStart(XMLStreamReader reader) {
@@ -199,15 +197,13 @@ public class LoadConf {
           }
           if ("Name".equals(key)) {
             String serviceStr = val.substring(transStart, transStart + transOffset);
-            Integer num = svcCodeMap.get(serviceStr);
-            if (null == num) {
-              svcCodeMap.put(serviceStr, 0);
+            if (null != allSvcMap.get(serviceStr)) {
+              System.out.println("Conflict service: " + val);
+              break;
             } else {
-              svcCodeMap.put(serviceStr, num + 1);
-              serviceStr += num;
+              currSvc.put(key, serviceStr);
+              allSvcMap.put(serviceStr, currSvc);
             }
-            allSvcMap.put(serviceStr, currSvc);
-            currSvc.put(key, serviceStr);
           } else {
             currSvc.put(key, val);
           }
