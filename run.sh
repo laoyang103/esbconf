@@ -25,14 +25,14 @@ elif [ "common" == $1 ]; then
   4,4
 elif [ "8583" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
-  `date +%s`YJN8583 \
-  `date +%s`YJN8583 \
+  `date +%s`ACQS_CLT \
+  `date +%s`ACQS_CLT \
   2 \
   $1 \
   GB2312 \
-  origin/8583.csv \
-  None \
-  None
+  origin/ACQS/Format.xml\;origin/ACQS/ACQS_CLT/Format.xml \
+  origin/ACQS/ACQS_CLT/Service.xml \
+  4,4
 fi
 
 

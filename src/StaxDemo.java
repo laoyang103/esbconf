@@ -110,11 +110,6 @@ public class StaxDemo {
       String messageType, String messageEncoding) {
     int masterReqId, masterResId;
 
-    if ("8583".equals(messageType)) {
-      add8583System(systemCode, systemName, systemType, commType, messageType, messageEncoding);
-      return ;
-    }
-
     String itemNameKey = "ElemName";
     if (messageType.equals("xml")) {
       itemNameKey = "XmlName";
@@ -136,9 +131,11 @@ public class StaxDemo {
       HashMap<String, Object> svc = (HashMap<String, Object> )LoadConf.allSvcMap.get(key);
 
       String transCode = (String )svc.get("Name");
-      String transName = (String )svc.get("SvcDesc");
+      String transName = ((String )svc.get("SvcDesc"));
+      if (transName.length() > 20) transName = transName.substring(0, 20);
+      System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
+
       transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
-      System.out.printf("ffffffffff Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
       idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
       if ("VC".equals(systemType)) {
@@ -172,40 +169,6 @@ public class StaxDemo {
         getFmtAllitem(outItemList, outFmt, 1);
         addTemplateItems(transResId, outItemList, itemNameKey, messageEncoding);
       }
-    }
-
-    JSONArray masterReqCtx = new JSONArray();
-    JSONArray masterResCtx = new JSONArray();
-    UrlImport.addTemplateField(masterReqCtx, masterReqId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
-    UrlImport.addTemplateField(masterResCtx, masterResId, 2, 1, 0, "ref_transcode", "交易码引用", "reference-field", "str", "Y", "", "", "", messageEncoding);
-    UrlImport.commitTemplateField(masterReqCtx);
-    UrlImport.commitTemplateField(masterResCtx);
-  }
-
-  public static void add8583System(String systemCode, String systemName, String systemType, int commType, 
-      String messageType, String messageEncoding) {
-    String itemNameKey = "name";
-    int masterReqId, masterResId, transReqId = 0, transResId = 0;
-    String transCode = "Default", transName = "Default";
-
-    UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
-    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
-    HashMap<String, Integer> idmap = getTemplateIdMap(transList);
-    masterReqId = idmap.get("masterReqId");
-    masterResId = idmap.get("masterResId");
-    transReqId = idmap.get("transReqId");
-    if ("VC".equals(systemType)) {
-      transResId = idmap.get("transResId");
-    }
-
-    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d]\n", 
-        systemName, systemCode, systemType, masterReqId, masterResId);
-    System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
-        transName, transCode, transReqId, transResId);
-
-    addTemplateItems(transReqId, LoadConf.allFmtMap8583, "_name", messageEncoding);
-    if ("VC".equals(systemType)) {
-      addTemplateItems(transResId, LoadConf.allFmtMap8583, "_name", messageEncoding);
     }
 
     JSONArray masterReqCtx = new JSONArray();

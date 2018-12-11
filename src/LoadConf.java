@@ -5,6 +5,7 @@ import java.io.IOException;;
 
 import java.util.HashMap;
 import java.util.ArrayList;
+import java.text.DecimalFormat;
 
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
@@ -17,7 +18,7 @@ public class LoadConf {
 
   public static HashMap<String,Object> allFmtMap = null;
   public static HashMap<String,Object> allSvcMap = null;
-  public static ArrayList<HashMap<String,Object>> allFmtMap8583 = null;
+  public static HashMap<String,Object> enum8583Map = null;
   public static HashMap<String,Integer> enumNumMap = null;
 
   private static String currStart = null;
@@ -33,7 +34,7 @@ public class LoadConf {
   static {
     allFmtMap = new HashMap<String,Object>();
     allSvcMap = new HashMap<String,Object>();
-    allFmtMap8583 = new ArrayList<HashMap<String,Object>>();
+    enum8583Map = new HashMap<String,Object>();
     enumNumMap = new HashMap<String,Integer>();
     svcNameMap = new HashMap<String,Integer>();
   }
@@ -70,7 +71,12 @@ public class LoadConf {
       }
       currItem.put("_length", 0);
       currItem.put("_dataType", "str");
-      if ("tag".equals((String )currItem.get("XmlType"))) {
+      String elemName = (String )currItem.get("ElemName");
+      if (null != elemName && 0 == "ISO_8583_".indexOf(elemName)) {
+        lastTagItem = (HashMap<String,Object> )enum8583Map.get(elemName.substring(9, 12));
+        itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
+        itemsList.add(lastTagItem);
+      } else if ("tag".equals((String )currItem.get("XmlType"))) {
         lastTagItem = currItem;
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
@@ -99,7 +105,7 @@ public class LoadConf {
           }
         }
       }
-      if (currStart.equals("LenDataExpr")) {
+      if (0 == (Integer)currItem.get("_length") && currStart.equals("LenDataExpr")) {
         len = 0;
         if (-1 != cdata.indexOf("enum_get_fld_len")) {
           String lenStr = cdata.split("\"")[3];
@@ -186,10 +192,11 @@ public class LoadConf {
     reader.close();
   }
 
-  public static void loadFmt8583(String csvFile) throws FileNotFoundException, IOException {
+  public static void loadEnum8583(String csvFile) throws FileNotFoundException, IOException {
     String line = null;
     FileReader reader = new FileReader(csvFile);
     BufferedReader br = new BufferedReader(reader);
+    DecimalFormat df  = new DecimalFormat("000");
     while ((line = br.readLine()) != null) {
       HashMap<String,Object> fieldMap = new HashMap<String,Object>();
       String[] lineSplit = line.split(",");
@@ -204,7 +211,7 @@ public class LoadConf {
       fieldMap.put("param3" 		, lineSplit[8]);
       fieldMap.put("encode" 		, lineSplit[9]);
       fieldMap.put("_layer" 		, 1);
-      allFmtMap8583.add(fieldMap);
+      enum8583Map.put(df.format(Integer.parseInt(lineSplit[0])), fieldMap);
     }
     br.close();
     reader.close();
@@ -214,10 +221,7 @@ public class LoadConf {
     int i;
     String[] strList = null;
     try {
-      if ("None".equals(serviceFiles) && "None".equals(transCodeRule)) {
-        loadFmt8583(formatFiles);
-        return ;
-      }
+      loadEnum8583("origin/8583.csv");
       loadEnumNum("origin/enum_number.txt");
       strList = serviceFiles.split(";");
       for (i = 0; i < strList.length; i++) {
