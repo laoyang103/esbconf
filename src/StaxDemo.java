@@ -110,7 +110,7 @@ public class StaxDemo {
 
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
       String messageType, String messageEncoding) {
-    int masterReqId, masterResId;
+    int masterReqId = 0, masterResId = 0;
 
     String itemNameKey = "ElemName";
     if (messageType.equals("xml")) {
@@ -122,13 +122,8 @@ public class StaxDemo {
     }
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
-    JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, "Default", "Default", messageType, messageEncoding);
-    HashMap<String, Integer> idmap = getTemplateIdMap(transList);
-    masterReqId = idmap.get("masterReqId");
-    masterResId = idmap.get("masterResId");
-
-    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [masterReqId=%d] [masterResId=%d] [svcCount=%d] [realSvcCount=%d]\n", 
-        systemName, systemCode, systemType, masterReqId, masterResId, LoadConf.svcCount, LoadConf.allSvcMap.size());
+    System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [svcCount=%d] [realSvcCount=%d]\n", 
+        systemName, systemCode, systemType, LoadConf.svcCount, LoadConf.allSvcMap.size());
 
     for (String key : LoadConf.allSvcMap.keySet()) {
       int transReqId = 0, transResId = 0, swapId;
@@ -138,14 +133,16 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      // if (!"综合理财签约".equals(transName)) continue;
+      if (!"综合理财签约".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
-      transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
-      idmap = getTemplateIdMap(transList);
+      JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
+      HashMap<String, Integer> idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
+      if (0 == masterReqId) masterReqId = idmap.get("masterReqId");
       if ("VC".equals(systemType)) {
         transResId = idmap.get("transResId");
+        if (0 == masterResId) masterResId = idmap.get("masterResId");
       }
 
       System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
