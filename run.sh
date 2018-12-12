@@ -22,7 +22,7 @@ elif [ "common" == $1 ]; then
   GB2312 \
   origin/CBS/Format.xml \
   origin/CBS/CBS_CLT/Service.xml \
-  4,4
+  6,4
 elif [ "8583" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
   `date +%s`ACQS_CLT \

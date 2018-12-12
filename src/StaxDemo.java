@@ -122,8 +122,6 @@ public class StaxDemo {
       sbo.replace(0, 3, "SCO");
       String fmtNamel = "FMT_81_" + sbl + "_IN";
       String fmtNameo = "FMT_81_" + sbo + "_IN";
-      System.out.println(fmtNameo);
-      System.out.println(fmtNamel);
       retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtNamel);
       if (null == retFmt) {
         retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtNameo);
@@ -132,7 +130,6 @@ public class StaxDemo {
     }
     if ("out".equals(io) && "common".equals(messageType)) {
       String fmtName0 = "FMT_81_" + svcName + "_OUT";
-      System.out.println(fmtName0);
       retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName0);
       return retFmt;
     }
@@ -164,7 +161,7 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      // if (!"理财合法性检查".equals(transName)) continue;
+      // if (!"个人客户基本信息查询".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);

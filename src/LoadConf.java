@@ -127,6 +127,7 @@ public class LoadConf {
           String lenStr = cdata.split("\"")[3];
           if (enumNumMap.containsKey(lenStr)) {
             len = enumNumMap.get(lenStr);
+            len = (len / 2) + 1;
           }
         } else if (StringUtils.isNumeric(cdata)) {
           len = Integer.parseInt(cdata);
