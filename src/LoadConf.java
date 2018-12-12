@@ -87,9 +87,8 @@ public class LoadConf {
       currItem.put("_dataType", "str");
       String elemName = (String )currItem.get("ElemName");
       if (null != elemName && 0 == elemName.indexOf("ISO_8583_")) {
-        lastTagItem = (HashMap<String,Object> )enum8583Map.get(elemName.substring(9, 12));
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
-        itemsList.add(lastTagItem);
+        itemsList.add((HashMap<String,Object> )enum8583Map.get(elemName.substring(9, 12)));
       } else if ("tag".equals((String )currItem.get("XmlType"))) {
         lastTagItem = currItem;
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
@@ -263,7 +262,7 @@ public class LoadConf {
       for (i = 0; i < strList.length; i++) {
         LoadConf.loadFmt(strList[i]);
       }
-      // System.out.println(allFmtMap);
+      // System.out.println(enum8583Map);
     } catch (Exception e) {
       e.printStackTrace();
     }

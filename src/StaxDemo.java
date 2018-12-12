@@ -91,8 +91,8 @@ public class StaxDemo {
         layer += 1;
         continue;
       }
-      item.put("_fieldType", "fixed-field");
-      item.put("_layer", layer);
+      if (null == item.get("_fieldType")) item.put("_fieldType", "fixed-field");
+      if (null == item.get("_layer")) item.put("_layer", layer);
       tmpStr = (String )item.get("SubName"); 
       if (null != tmpStr && !"".equals(tmpStr)) {
         subName = tmpStr;
@@ -133,7 +133,7 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      if (!"综合理财签约".equals(transName)) continue;
+      // if (!"预授权".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);

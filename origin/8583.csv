@@ -1,55 +1,55 @@
 2,主账号,num,2,N,embedded-length-var-field,num,left,0,GBK
-3,交易处理码,num,6,N,定长域,left,0,,GBK
-4,交易金额,num,12,N,定长域,left,0,,GBK
-5,清算金额,num,12,N,定长域,left,0,,GBK
-6,持卡人扣账金额,num,12,N,定长域,left,0,,GBK
-7,交易传输时间,num,10,N,定长域,left,0,,GBK
-8,无,num,8,N,定长域,left,0,,GBK
-9,清算汇率,num,8,N,定长域,left,0,,GBK
-10,持卡人扣账汇率,num,8,N,定长域,left,0,,GBK
-11,系统跟踪号,num,6,N,定长域,left,0,,GBK
-12,受卡方所在地时间,num,6,N,定长域,left,0,,GBK
-13,受卡方所在地日期,num,4,N,定长域,left,0,,GBK
-14,卡有效期,num,4,N,定长域,left,0,,GBK
-15,清算日期 ,num,4,N,定长域,left,0,,GBK
-16,兑换日期,num,4,N,定长域,left,0,,GBK
-17,无,num,4,N,定长域,left,0,,GBK
-18,商户类型,num,4,N,定长域,left,0,,GBK
-19,受理机构国家代码,num,3,N,定长域,left,0,,GBK
-20,无,num,3,N,定长域,left,0,,GBK
-21,无,num,3,N,定长域,left,0,,GBK
-22,服务点输入方式码,num,3,N,定长域,left,0,,GBK
-23,卡序列号,num,3,N,定长域,left,0,,GBK
-24,无,num,3,N,定长域,left,0,,GBK
-25,服务点条件码,num,2,N,定长域,left,0,,GBK
-26,服务点PIN获取码,num,2,N,定长域,left,0,,GBK
-27,无,num,1,N,定长域,left,0,,GBK
-28,交易费,num,9,N,定长域,left,0,,GBK
-29,无,num,8,N,定长域,left,0,,GBK
-30,无,num,8,N,定长域,left,0,,GBK
-31,无,num,8,N,定长域,left,0,,GBK
+3,交易处理码,num,6,N,fixed-field,left,0,,GBK
+4,交易金额,num,12,N,fixed-field,left,0,,GBK
+5,清算金额,num,12,N,fixed-field,left,0,,GBK
+6,持卡人扣账金额,num,12,N,fixed-field,left,0,,GBK
+7,交易传输时间,num,10,N,fixed-field,left,0,,GBK
+8,无,num,8,N,fixed-field,left,0,,GBK
+9,清算汇率,num,8,N,fixed-field,left,0,,GBK
+10,持卡人扣账汇率,num,8,N,fixed-field,left,0,,GBK
+11,系统跟踪号,num,6,N,fixed-field,left,0,,GBK
+12,受卡方所在地时间,num,6,N,fixed-field,left,0,,GBK
+13,受卡方所在地日期,num,4,N,fixed-field,left,0,,GBK
+14,卡有效期,num,4,N,fixed-field,left,0,,GBK
+15,清算日期 ,num,4,N,fixed-field,left,0,,GBK
+16,兑换日期,num,4,N,fixed-field,left,0,,GBK
+17,无,num,4,N,fixed-field,left,0,,GBK
+18,商户类型,num,4,N,fixed-field,left,0,,GBK
+19,受理机构国家代码,num,3,N,fixed-field,left,0,,GBK
+20,无,num,3,N,fixed-field,left,0,,GBK
+21,无,num,3,N,fixed-field,left,0,,GBK
+22,服务点输入方式码,num,3,N,fixed-field,left,0,,GBK
+23,卡序列号,num,3,N,fixed-field,left,0,,GBK
+24,无,num,3,N,fixed-field,left,0,,GBK
+25,服务点条件码,num,2,N,fixed-field,left,0,,GBK
+26,服务点PIN获取码,num,2,N,fixed-field,left,0,,GBK
+27,无,num,1,N,fixed-field,left,0,,GBK
+28,交易费,num,9,N,fixed-field,left,0,,GBK
+29,无,num,8,N,fixed-field,left,0,,GBK
+30,无,num,8,N,fixed-field,left,0,,GBK
+31,无,num,8,N,fixed-field,left,0,,GBK
 32,代理机构标识码,num,2,N,embedded-length-var-field,str,,,GBK
 33,发送机构标识码,num,2,N,embedded-length-var-field,str,,,GBK
 34,无,num,2,N,embedded-length-var-field,str,,,GBK
 35,第二磁道数据,num,2,N,embedded-length-var-field,str,,,GBK
 36,第三磁道数据,num,3,N,embedded-length-var-field,str,,,GBK
-37,检索参考号,str,12,N,定长域,right,,,GBK
-38,授权标识应答码,str,6,N,定长域,,,,GBK
-39,应答码,str,2,N,定长域,right,,,GBK
-40,无,str,2,N,定长域,right,,,GBK
-41,受卡机终端标识码,str,8,N,定长域,right,,,GBK
-42,受卡方标识码,str,15,N,定长域,right,,,GBK
-43,受卡方所在地,str,40,N,定长域,right,,,GBK
+37,检索参考号,str,12,N,fixed-field,right,,,GBK
+38,授权标识应答码,str,6,N,fixed-field,,,,GBK
+39,应答码,str,2,N,fixed-field,right,,,GBK
+40,无,str,2,N,fixed-field,right,,,GBK
+41,受卡机终端标识码,str,8,N,fixed-field,right,,,GBK
+42,受卡方标识码,str,15,N,fixed-field,right,,,GBK
+43,受卡方所在地,str,40,N,fixed-field,right,,,GBK
 44,附加响应数据,num,2,N,embedded-length-var-field,str,right,,GBK
 45,第一磁道数据,num,2,N,embedded-length-var-field,str,right,,GBK
 46,无,num,3,N,embedded-length-var-field,str,right,,GBK
 47,无,num,3,N,embedded-length-var-field,str,right,,GBK
 48,附加数据-私有,num,3,N,embedded-length-var-field,str,right,,GBK
-49,交易货币代码,str,3,N,定长域,right,,,GBK
-50,清算货币代码,str,3,N,定长域,right,,,GBK
-51, 持卡人账户货币代码 ,str,3,N,定长域,right,,,GBK
-52,个人标识码数据 ,bin,8,N,定长域,,,,GBK
-53,安全控制信息,num,16,N,定长域,,,,GBK
+49,交易货币代码,str,3,N,fixed-field,right,,,GBK
+50,清算货币代码,str,3,N,fixed-field,right,,,GBK
+51, 持卡人账户货币代码 ,str,3,N,fixed-field,right,,,GBK
+52,个人标识码数据 ,bin,8,N,fixed-field,,,,GBK
+53,安全控制信息,num,16,N,fixed-field,,,,GBK
 54,实际余额,num,3,N,embedded-length-var-field,str,right,,GBK
 55,IC 卡数据域 ,num,3,N,embedded-length-var-field,str,right,,GBK
 56,附加信息,num,3,N,embedded-length-var-field,str,right,,GBK
@@ -60,44 +60,44 @@
 61,持卡人身份认证信息 ,num,3,N,embedded-length-var-field,str,right,,GBK
 62,交换中心保留,num,3,N,embedded-length-var-field,str,right,,GBK
 63,金融网络数据 ,num,3,N,embedded-length-var-field,str,right,,GBK
-64,无,str,8,N,定长域,,,,GBK
-65,无,str,1,N,定长域,,,,GBK
-66,无,str,1,N,定长域,left,0,,GBK
-67,无,str,2,N,定长域,left,0,,GBK
-68,无,str,3,N,定长域,left,0,,GBK
-69,无,str,3,N,定长域,left,0,,GBK
-70,网络管理信息码,str,3,N,定长域,left,0,,GBK
-71,无,str,4,N,定长域,left,0,,GBK
-72,无,str,4,N,定长域,left,0,,GBK
-73,无,str,6,N,定长域,left,0,,GBK
-74,无,str,10,N,定长域,left,0,,GBK
-75,无,str,10,N,定长域,left,0,,GBK
-76,无,str,10,N,定长域,left,0,,GBK
-77,无,str,10,N,定长域,left,0,,GBK
-78,无,str,10,N,定长域,left,0,,GBK
-79,无,str,10,N,定长域,left,0,,GBK
-80,无,str,10,N,定长域,left,0,,GBK
-81,无,str,10,N,定长域,left,0,,GBK
-82,无,str,12,N,定长域,left,0,,GBK
-83,无,str,12,N,定长域,left,0,,GBK
-84,无,str,12,N,定长域,left,0,,GBK
-85,无,str,12,N,定长域,left,0,,GBK
-86,无,str,16,N,定长域,left,0,,GBK
-87,无,str,16,N,定长域,left,0,,GBK
-88,无,str,16,N,定长域,left,0,,GBK
-89,无,str,16,N,定长域,left,0,,GBK
-90,原始数据元,str,42,N,定长域,left,0,,GBK
-91,无,str,1,N,定长域,right,,,GBK
-92,无,str,2,N,定长域,right,,,GBK
-93,无,str,5,N,定长域,,,,GBK
-94,无,str,7,N,定长域,right,,,GBK
-95,无,str,42,N,定长域,right,,,GBK
-96,报文安全码 ,bin,8,N,定长域,,,,GBK
-97,无,str,17,N,定长域,right,,,GBK
-98,无,str,25,N,定长域,right,,,GBK
+64,无,str,8,N,fixed-field,,,,GBK
+65,无,str,1,N,fixed-field,,,,GBK
+66,无,str,1,N,fixed-field,left,0,,GBK
+67,无,str,2,N,fixed-field,left,0,,GBK
+68,无,str,3,N,fixed-field,left,0,,GBK
+69,无,str,3,N,fixed-field,left,0,,GBK
+70,网络管理信息码,str,3,N,fixed-field,left,0,,GBK
+71,无,str,4,N,fixed-field,left,0,,GBK
+72,无,str,4,N,fixed-field,left,0,,GBK
+73,无,str,6,N,fixed-field,left,0,,GBK
+74,无,str,10,N,fixed-field,left,0,,GBK
+75,无,str,10,N,fixed-field,left,0,,GBK
+76,无,str,10,N,fixed-field,left,0,,GBK
+77,无,str,10,N,fixed-field,left,0,,GBK
+78,无,str,10,N,fixed-field,left,0,,GBK
+79,无,str,10,N,fixed-field,left,0,,GBK
+80,无,str,10,N,fixed-field,left,0,,GBK
+81,无,str,10,N,fixed-field,left,0,,GBK
+82,无,str,12,N,fixed-field,left,0,,GBK
+83,无,str,12,N,fixed-field,left,0,,GBK
+84,无,str,12,N,fixed-field,left,0,,GBK
+85,无,str,12,N,fixed-field,left,0,,GBK
+86,无,str,16,N,fixed-field,left,0,,GBK
+87,无,str,16,N,fixed-field,left,0,,GBK
+88,无,str,16,N,fixed-field,left,0,,GBK
+89,无,str,16,N,fixed-field,left,0,,GBK
+90,原始数据元,str,42,N,fixed-field,left,0,,GBK
+91,无,str,1,N,fixed-field,right,,,GBK
+92,无,str,2,N,fixed-field,right,,,GBK
+93,无,str,5,N,fixed-field,,,,GBK
+94,无,str,7,N,fixed-field,right,,,GBK
+95,无,str,42,N,fixed-field,right,,,GBK
+96,报文安全码 ,bin,8,N,fixed-field,,,,GBK
+97,无,str,17,N,fixed-field,right,,,GBK
+98,无,str,25,N,fixed-field,right,,,GBK
 99,无,num,2,N,embedded-length-var-field,str,,,GBK
 100,接收机构标识码 ,num,2,N,embedded-length-var-field,str,,,GBK
-101,无,str,17,N,定长域,,,,GBK
+101,无,str,17,N,fixed-field,,,,GBK
 102,账户标识 1 ,num,2,N,embedded-length-var-field,str,,,GBK
 103,账户标识 2,num,2,N,embedded-length-var-field,str,,,GBK
 104,附加信息 ,num,3,N,embedded-length-var-field,str,right,,GBK
@@ -124,4 +124,4 @@
 125,附加信息 ,num,3,N,embedded-length-var-field,str,right,,GBK
 126,附加信息 ,num,3,N,embedded-length-var-field,str,right,,GBK
 127,无,num,3,N,embedded-length-var-field,str,right,,GBK
-128,报文鉴别码 ,bin,8,N,定长域,,,,GBK
+128,报文鉴别码 ,bin,8,N,fixed-field,,,,GBK
