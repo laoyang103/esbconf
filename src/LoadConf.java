@@ -125,7 +125,9 @@ public class LoadConf {
         len = 0;
         if (-1 != cdata.indexOf("enum_get_fld_len")) {
           String lenStr = cdata.split("\"")[3];
-          len = enumNumMap.get(lenStr);
+          if (enumNumMap.containsKey(lenStr)) {
+            len = enumNumMap.get(lenStr);
+          }
         } else if (StringUtils.isNumeric(cdata)) {
           len = Integer.parseInt(cdata);
         }
@@ -200,7 +202,8 @@ public class LoadConf {
               System.out.println("Conflict service: " + val);
               break;
             } else {
-              currSvc.put(key, serviceStr);
+              currSvc.put(key, val);
+              currSvc.put("_svcName", serviceStr);
               allSvcMap.put(serviceStr, currSvc);
             }
           } else {

@@ -20,8 +20,8 @@ elif [ "common" == $1 ]; then
   2 \
   $1 \
   GB2312 \
-  origin/CBS_CLT/format.xml \
-  origin/CBS_CLT/service.xml \
+  origin/CBS/Format.xml \
+  origin/CBS/CBS_CLT/Service.xml \
   4,4
 elif [ "8583" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \

@@ -108,6 +108,37 @@ public class StaxDemo {
     } 
   }
 
+  private static HashMap<String,Object> getFmtByName(String fmtName, String svcName, String messageType, String io) {
+    HashMap<String,Object> retFmt = null;
+
+    if ("8583".equals(messageType) || "xml".equals(messageType)) {
+      retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName);
+      return retFmt;
+    }
+    if ("in".equals(io) && "common".equals(messageType)) {
+      StringBuilder sbl = new StringBuilder(svcName);
+      StringBuilder sbo = new StringBuilder(svcName);
+      sbl.replace(0, 3, "SCL");
+      sbo.replace(0, 3, "SCO");
+      String fmtNamel = "FMT_81_" + sbl + "_IN";
+      String fmtNameo = "FMT_81_" + sbo + "_IN";
+      System.out.println(fmtNameo);
+      System.out.println(fmtNamel);
+      retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtNamel);
+      if (null == retFmt) {
+        retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtNameo);
+      }
+      return retFmt;
+    }
+    if ("out".equals(io) && "common".equals(messageType)) {
+      String fmtName0 = "FMT_81_" + svcName + "_OUT";
+      System.out.println(fmtName0);
+      retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName0);
+      return retFmt;
+    }
+    return null;
+  }
+
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
       String messageType, String messageEncoding) {
     int masterReqId = 0, masterResId = 0;
@@ -129,11 +160,11 @@ public class StaxDemo {
       int transReqId = 0, transResId = 0, swapId;
       HashMap<String, Object> svc = (HashMap<String, Object> )LoadConf.allSvcMap.get(key);
 
-      String transCode = (String )svc.get("Name");
+      String transCode = (String )svc.get("_svcName");
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      // if (!"预授权".equals(transName)) continue;
+      // if (!"理财合法性检查".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
@@ -149,8 +180,8 @@ public class StaxDemo {
           transName, transCode, transReqId, transResId);
 
       HashMap<String,Object> inFmt, outFmt, swapFmt;
-      inFmt  = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("IFmt"));
-      outFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get((String )svc.get("OFmt"));
+      inFmt   = getFmtByName((String )svc.get("IFmt"), (String )svc.get("Name"), messageType, "in");
+      outFmt  = getFmtByName((String )svc.get("OFmt"), (String )svc.get("Name"), messageType, "out");
 
       ArrayList<HashMap<String,Object>> inItemList, outItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
