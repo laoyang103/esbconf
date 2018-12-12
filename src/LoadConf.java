@@ -252,19 +252,37 @@ public class LoadConf {
     reader.close();
   }
 
-  public static void load(String formatFiles, String serviceFiles, String transCodeRule) {
+  public static String iconvFile(String formatFile, String encode) {
+    String outfile = formatFile + ".utf";
+    if ("utf-8".equals(encode)) {
+      return formatFile;
+    } else if ("gb2312".equals(encode)) {
+      try {
+        Runtime.getRuntime().exec("iconv -f gb2312 -t utf-8 -c " + formatFile + " > " + outfile);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      return outfile;
+    }
+    return formatFile;
+  }
+
+  public static void load(String formatFiles, String serviceFiles, String transCodeRule, String encode) {
     int i;
-    String[] strList = null;
+    String fileName;
+    String[] strList = null; 
     try {
       loadEnum8583("origin/8583.csv");
       loadEnumNum("origin/enum_number.txt");
       strList = serviceFiles.split(";");
       for (i = 0; i < strList.length; i++) {
-        LoadConf.loadSvc(strList[i], transCodeRule);
+        fileName = iconvFile(strList[i], encode);
+        LoadConf.loadSvc(fileName, transCodeRule);
       }
       strList = formatFiles.split(";");
       for (i = 0; i < strList.length; i++) {
-        LoadConf.loadFmt(strList[i]);
+        fileName = iconvFile(strList[i], encode);
+        LoadConf.loadFmt(fileName);
       }
       // System.out.println(enum8583Map);
     } catch (Exception e) {

@@ -161,7 +161,7 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
-      // if (!"个人客户基本信息查询".equals(transName)) continue;
+      if (!"个人客户信息建立".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
@@ -212,7 +212,8 @@ public class StaxDemo {
     LoadConf.load(				              
         args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
         args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
-        args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
+        args[7],				                    // 交易码提取规则（4,4表示偏移四位截取四位）
+        args[8]);				                    // 配置文件编码
     StaxDemo.addSystem(				              
         args[0], 				                    // 系统名称
         args[1], 				                    // 系统编码

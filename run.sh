@@ -12,7 +12,8 @@ if [ "xml" == $1 ]; then
   GB2312 \
   origin/LCSA/Format.xml\;origin/LCSA/LCSA_CLT/Format.xml \
   origin/LCSA/LCSA_CLT/Service.xml \
-  4,4
+  4,4 \
+  utf-8
 elif [ "common" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
   `date +%s`CBS_CLT \
@@ -22,7 +23,8 @@ elif [ "common" == $1 ]; then
   GB2312 \
   origin/CBS/Format.xml \
   origin/CBS/CBS_CLT/Service.xml \
-  6,4
+  6,4 \
+  utf-8
 elif [ "8583" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
   `date +%s`ACQS_CLT \
@@ -32,7 +34,8 @@ elif [ "8583" == $1 ]; then
   GB2312 \
   origin/ACQS/Format.xml\;origin/ACQS/ACQS_CLT/Format.xml \
   origin/ACQS/ACQS_CLT/Service.xml \
-  4,4
+  4,4 \
+  utf-8
 fi
 
 
