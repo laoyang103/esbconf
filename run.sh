@@ -11,10 +11,10 @@ if [ "xml" == $1 ]; then
   2 \
   $1 \
   GB2312 \
-  origin/ABCS/Format.xml \
-  origin/ABCS/ABC2_SVR/Service.xml \
+  origin/ABC2_SVR/format.xml \
+  origin/ABC2_SVR/service.xml \
   4,4 \
-  gb2312
+  utf-8
 elif [ "common" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
   `date +%s`CBS_CLT \
