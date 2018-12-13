@@ -161,7 +161,12 @@ public class StaxDemo {
       String transName = ((String )svc.get("SvcDesc"));
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
+      // xml
       // if (!"乐益通".equals(transName)) continue;
+      // common
+      // if (!"个人客户信息建立".equals(transName)) continue;
+      // 8583
+      // if (!"本行卡预授权打包".equals(transName)) continue;
       System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
