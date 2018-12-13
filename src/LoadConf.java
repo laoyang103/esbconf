@@ -1,8 +1,11 @@
-import java.io.FileNotFoundException;
+import java.io.File;
 import java.io.FileReader;
 import java.io.BufferedReader;;
 import java.io.IOException;;
+import java.io.FileNotFoundException;
 
+import java.util.List;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.text.DecimalFormat;
@@ -253,18 +256,20 @@ public class LoadConf {
   }
 
   public static String iconvFile(String formatFile, String encode) {
-    String outfile = formatFile + ".utf";
+    String outFile = formatFile + ".utf";
     if ("utf-8".equals(encode)) {
       return formatFile;
-    } else if ("gb2312".equals(encode)) {
-      try {
-        Runtime.getRuntime().exec("iconv -f gb2312 -t utf-8 -c " + formatFile + " > " + outfile);
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-      return outfile;
     }
-    return formatFile;
+    try {
+      List<String> cmdList = Arrays.asList("iconv", "-f", encode, "-t", "utf-8", "-c", formatFile);
+      ProcessBuilder builder = new ProcessBuilder(cmdList);
+      builder.redirectOutput(new File(outFile));
+      Process p = builder.start(); 
+    } catch (Exception e) {   
+      e.printStackTrace();  
+      return null;
+    }   
+    return outFile;
   }
 
   public static void load(String formatFiles, String serviceFiles, String transCodeRule, String encode) {

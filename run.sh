@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -f classes/*.class
+rm `find . -name *.utf`
 javac -encoding utf-8 -Djava.ext.dirs=./lib  -d classes `find ./src/ -name *.java`
 
 if [ "xml" == $1 ]; then
@@ -10,10 +11,10 @@ if [ "xml" == $1 ]; then
   2 \
   $1 \
   GB2312 \
-  origin/LCSA/Format.xml\;origin/LCSA/LCSA_CLT/Format.xml \
-  origin/LCSA/LCSA_CLT/Service.xml \
+  origin/ABCS/Format.xml \
+  origin/ABCS/ABC2_SVR/Service.xml \
   4,4 \
-  utf-8
+  gb2312
 elif [ "common" == $1 ]; then
   java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
   `date +%s`CBS_CLT \
