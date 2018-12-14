@@ -62,7 +62,8 @@ public class StaxDemo {
       if (null == param1) param1 = "";
       align = (String )item.get("ItemAdj");
       if (null != align && ("left".equals(align) || "right".equals(align))) {
-        param1 = align;
+        if ("left".equals(align))  param1 = "right";
+        if ("right".equals(align)) param1 = "left";
       }
       // 参数2
       param2 = (String )item.get("param2");
