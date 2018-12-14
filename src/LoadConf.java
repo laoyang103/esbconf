@@ -96,7 +96,7 @@ public class LoadConf {
         lastTagItem = currItem;
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
-      } else {
+      } else if (!"attr".equals((String )currItem.get("XmlType"))) {
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
       }
