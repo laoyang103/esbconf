@@ -166,6 +166,7 @@ public class StaxDemo {
       String transName = (String )svc.get("SvcDesc");
       if (transName.length() > 20) transName = transName.substring(0, 20);
 
+      System.out.printf("\nTry Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
       transCode = transCode.substring(transStart, transStart + transOffset);
       if (null == transCodeRuleMap.get(transCode)) {
         transCodeRuleMap.put(transCode, "");
@@ -182,7 +183,6 @@ public class StaxDemo {
       // if (!"本行卡预授权打包".equals(transName)) continue;
       // mq
       // if (!"提回票据结清".equals(transName)) continue;
-      System.out.printf("\nTry Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
       HashMap<String, Integer> idmap = getTemplateIdMap(transList);
