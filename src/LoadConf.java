@@ -140,7 +140,7 @@ public class LoadConf {
     }
   }
 
-  public static void loadFmt(String confFile) throws FileNotFoundException, XMLStreamException {
+  private static void loadFmt(String confFile) throws FileNotFoundException, XMLStreamException {
     XMLInputFactory factory = XMLInputFactory.newFactory();
     factory.setProperty(XMLInputFactory.IS_COALESCING, Boolean.FALSE);
     factory.setProperty("http://java.sun.com/xml/stream/properties/report-cdata-event", Boolean.TRUE);
@@ -160,16 +160,23 @@ public class LoadConf {
     }
   }
 
-  public static void loadSvc(String confFile, String transCodeRule) throws FileNotFoundException, XMLStreamException {
+  private static String getSvcNameFromMap(String svcName) {
+    Integer num = svcNameMap.get(svcName);
+    if (null == num) {
+      svcNameMap.put(svcName, 0);
+    } else {
+      svcNameMap.put(svcName, num + 1);
+      svcName += num;
+    }
+    return svcName;
+  }
+
+  private static void loadSvc(String confFile, String conflictRule) throws FileNotFoundException, XMLStreamException {
     String key, val; 
     int i, nattr, transStart, transOffset;
     XMLInputFactory factory = XMLInputFactory.newFactory();
     XMLStreamReader reader = factory.createXMLStreamReader(new FileReader(confFile));
-    HashMap<String,Object> currSvc = null;
-
-    String[] ruleArray = transCodeRule.split(",");
-    transStart = Integer.parseInt(ruleArray[0]);
-    transOffset = Integer.parseInt(ruleArray[1]);
+    HashMap<String,Object> currSvc, existSvc;
 
     while (reader.hasNext()) {
       if (XMLStreamConstants.START_ELEMENT != reader.next()) continue;
@@ -179,12 +186,13 @@ public class LoadConf {
           key = reader.getAttributeLocalName(i);
           val = reader.getAttributeValue(i);
           if ("RecNum".equals(key)) {
-            svcCount = Integer.parseInt(val);
+            svcCount += Integer.parseInt(val);
             break;
           }
         }
       }
       if (reader.getLocalName().equals("Service")) {
+        String serviceKey = null;
         currSvc = new HashMap<String,Object>();
         nattr = reader.getAttributeCount();
         for(i = 0; i < nattr; i++) {
@@ -192,33 +200,29 @@ public class LoadConf {
           val = reader.getAttributeValue(i);
           if ("".equals(val)) continue;
           if ("SvcDesc".equals(key)) {
-            Integer num = svcNameMap.get(val);
-            if (null == num) {
-              svcNameMap.put(val, 0);
-            } else {
-              svcNameMap.put(val, num + 1);
-              val += num;
-            }
+            val = getSvcNameFromMap(val);
           }
           if ("Name".equals(key)) {
-            String serviceStr = val.substring(transStart, transStart + transOffset);
-            if (null != allSvcMap.get(serviceStr)) {
-              System.out.println("Conflict service: " + val);
-              break;
-            } else {
-              currSvc.put(key, val);
-              currSvc.put("_svcName", serviceStr);
-              allSvcMap.put(serviceStr, currSvc);
-            }
-          } else {
-            currSvc.put(key, val);
+            serviceKey = val;
           }
+          currSvc.put(key, val);
+        }
+        existSvc = (HashMap<String,Object> )allSvcMap.get(serviceKey);
+        if (null != existSvc && "drop".equals(conflictRule)) {
+          // System.out.printf("drop service %s form %s\n", serviceKey, confFile);
+        } else if (null != existSvc && "fillIn".equals(conflictRule)) {
+          existSvc.put("IFmt", currSvc.get("IFmt"));
+        } else if (null != existSvc && "fillOut".equals(conflictRule)) {
+          existSvc.put("OFmt", currSvc.get("OFmt"));
+        } else {
+          currSvc.put("_svcName", serviceKey);
+          allSvcMap.put(serviceKey, currSvc);
         }
       }
     }
   }
 
-  public static void loadEnumNum(String enumFile) throws FileNotFoundException, IOException {
+  private static void loadEnumNum(String enumFile) throws FileNotFoundException, IOException {
     String line = null;
     FileReader reader = new FileReader(enumFile);
     BufferedReader br = new BufferedReader(reader);
@@ -230,7 +234,7 @@ public class LoadConf {
     reader.close();
   }
 
-  public static void loadEnum8583(String csvFile) throws FileNotFoundException, IOException {
+  private static void loadEnum8583(String csvFile) throws FileNotFoundException, IOException {
     String line = null;
     FileReader reader = new FileReader(csvFile);
     BufferedReader br = new BufferedReader(reader);
@@ -255,7 +259,7 @@ public class LoadConf {
     reader.close();
   }
 
-  public static String iconvFile(String formatFile, String encode) {
+  private static String iconvFile(String formatFile, String encode) {
     String outFile = formatFile + ".utf";
     if ("utf-8".equals(encode)) {
       return formatFile;
@@ -272,9 +276,24 @@ public class LoadConf {
     return outFile;
   }
 
-  public static void load(String formatFiles, String serviceFiles, String transCodeRule, String encode) {
+  private static String getSvcFileConflictRule(String svcFileName) {
+    String rule = "drop";
+    if (svcFileName.contains("CGET") || svcFileName.contains("CPUT")) {
+      if (svcFileName.contains("CGET")) {
+        rule = "fillIn";
+      }
+    }
+    if (svcFileName.contains("SGET") || svcFileName.contains("SPUT")) {
+      if (svcFileName.contains("SPUT")) {
+        rule = "fillOut";
+      }
+    }
+    return rule;
+  }
+
+  public static void load(String formatFiles, String serviceFiles, String encode) {
     int i;
-    String fileName;
+    String fileName, conflictRule;
     String[] strList = null; 
     try {
       loadEnum8583("origin/8583.csv");
@@ -282,16 +301,23 @@ public class LoadConf {
       strList = serviceFiles.split(";");
       for (i = 0; i < strList.length; i++) {
         fileName = iconvFile(strList[i], encode);
-        LoadConf.loadSvc(fileName, transCodeRule);
+        conflictRule = getSvcFileConflictRule(strList[i]);
+        LoadConf.loadSvc(fileName, conflictRule);
       }
       strList = formatFiles.split(";");
       for (i = 0; i < strList.length; i++) {
         fileName = iconvFile(strList[i], encode);
         LoadConf.loadFmt(fileName);
       }
-      // System.out.println(enum8583Map);
     } catch (Exception e) {
       e.printStackTrace();
     }
   }
 }
+
+/*
+   for (String key : allSvcMap.keySet()) {
+   HashMap<String, Object> svc = (HashMap<String, Object> )allSvcMap.get(key);
+   System.out.println(svc.get("_svcName") + " " + svc.get("IFmt") + "   " + svc.get("OFmt"));
+   }
+ */

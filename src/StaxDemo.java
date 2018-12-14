@@ -111,7 +111,7 @@ public class StaxDemo {
   private static HashMap<String,Object> getFmtByName(String fmtName, String svcName, String messageType, String io) {
     HashMap<String,Object> retFmt = null;
 
-    if ("8583".equals(messageType) || "xml".equals(messageType)) {
+    if ("8583".equals(messageType) || "xml".equals(messageType) || "mq".equals(messageType)) {
       retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName);
       return retFmt;
     }
@@ -137,13 +137,16 @@ public class StaxDemo {
   }
 
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
-      String messageType, String messageEncoding) {
+      String messageType, String messageEncoding, String transCodeRule) {
+    int transStart, transOffset;
     int masterReqId = 0, masterResId = 0;
 
-    String itemNameKey = "ElemName";
-    if (messageType.equals("xml")) {
-      itemNameKey = "XmlName";
-    } else if (messageType.equals("common")) {
+    String[] ruleArray = transCodeRule.split(",");
+    transStart = Integer.parseInt(ruleArray[0]);
+    transOffset = Integer.parseInt(ruleArray[1]);
+
+    String itemNameKey = "XmlName";
+    if (messageType.equals("common")) {
       itemNameKey = "ElemName";
     } else if (messageType.equals("8583")) {
       itemNameKey = "_name";
@@ -153,13 +156,22 @@ public class StaxDemo {
     System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [svcCount=%d] [realSvcCount=%d]\n", 
         systemName, systemCode, systemType, LoadConf.svcCount, LoadConf.allSvcMap.size());
 
+    HashMap<String,Object> transCodeRuleMap = new HashMap<String,Object>();
     for (String key : LoadConf.allSvcMap.keySet()) {
       int transReqId = 0, transResId = 0, swapId;
       HashMap<String, Object> svc = (HashMap<String, Object> )LoadConf.allSvcMap.get(key);
 
       String transCode = (String )svc.get("_svcName");
-      String transName = ((String )svc.get("SvcDesc"));
+      String transName = (String )svc.get("SvcDesc");
       if (transName.length() > 20) transName = transName.substring(0, 20);
+
+      transCode = transCode.substring(transStart, transStart + transOffset);
+      if (null == transCodeRuleMap.get(transCode)) {
+        transCodeRuleMap.put(transCode, "");
+      } else {
+        System.out.printf("Conflict service: [SvcDesc=%s] [_svcName=%s]\n", svc.get("SvcDesc"), svc.get("_svcName"));
+        continue;
+      }
 
       // xml
       // if (!"乐益通".equals(transName)) continue;
@@ -167,7 +179,9 @@ public class StaxDemo {
       // if (!"个人客户信息建立".equals(transName)) continue;
       // 8583
       // if (!"本行卡预授权打包".equals(transName)) continue;
-      System.out.printf("Try Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
+      // mq
+      // if (!"提回票据结清".equals(transName)) continue;
+      System.out.printf("\nTry Add trans: [transName=%s] [transCode=%s] \n", transName, transCode);
 
       JSONArray transList = UrlImport.addMockTrans(systemCode, systemType, transCode, transName, messageType, messageEncoding);
       HashMap<String, Integer> idmap = getTemplateIdMap(transList);
@@ -217,7 +231,6 @@ public class StaxDemo {
     LoadConf.load(				              
         args[5], 				                    // 格式配置文件，多个用分号隔开，文件名路径不能有分号
         args[6], 				                    // 交易配置文件，多个用分号隔开，文件名路径不能有分号
-        args[7],				                    // 交易码提取规则（4,4表示偏移四位截取四位）
         args[8]);				                    // 配置文件编码
     StaxDemo.addSystem(				              
         args[0], 				                    // 系统名称
@@ -225,14 +238,16 @@ public class StaxDemo {
         "VC", 				                      // 系统编码
         Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
         args[3], 				                    // 报文类型
-        args[4]); 				                  // 编码类型
+        args[4], 				                    // 编码类型
+        args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
     StaxDemo.addSystem(				              
         args[0], 				                    // 系统名称
         args[1], 				                    // 系统编码
         "VS", 				                      // 系统编码
         Integer.parseInt(args[2]),          // 通信类型（2：SOCKET短连接， 3：SOCKET长连接）
         args[3], 				                    // 报文类型
-        args[4]); 				                  // 编码类型
+        args[4], 				                    // 编码类型
+        args[7]);				                    // 交易码提取规则（4,4表示偏移四位截取四位）
   }
 }
 

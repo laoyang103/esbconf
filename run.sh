@@ -37,6 +37,17 @@ elif [ "8583" == $1 ]; then
   origin/ACQS/ACQS_CLT/Service.xml \
   4,4 \
   utf-8
+elif [ "mq" == $1 ]; then
+  java -Djava.ext.dirs=./lib/ -cp classes/ StaxDemo \
+  `date +%s`ACOS_S \
+  `date +%s`ACOS_S \
+  1 \
+  $1 \
+  GB2312 \
+  `find origin/ -name Format.xml  | grep ACOS   | sort | xargs | sed 's/ /;/g'` \
+  `find origin/ -name Service.xml | grep ACOS_S | sort | xargs | sed 's/ /;/g'` \
+  4,4 \
+  gb2312
 fi
 
 
