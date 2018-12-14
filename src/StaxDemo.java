@@ -202,12 +202,6 @@ public class StaxDemo {
       inItemList  = new ArrayList<HashMap<String,Object>>();
       outItemList = new ArrayList<HashMap<String,Object>>();
 
-      if (systemCode.endsWith("CLT") || systemCode.contains("SGET") || systemCode.contains("SPUT")) {
-        swapFmt = inFmt;
-        inFmt = outFmt;
-        outFmt = swapFmt;
-      }
-
       if (null != inFmt) {
         getFmtAllitem(inItemList, inFmt, 1);
         addTemplateItems(transReqId, inItemList, itemNameKey, messageEncoding);

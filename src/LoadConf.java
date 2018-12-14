@@ -173,10 +173,15 @@ public class LoadConf {
 
   private static void loadSvc(String confFile, String conflictRule) throws FileNotFoundException, XMLStreamException {
     String key, val; 
+    boolean swapInOut = false;
     int i, nattr, transStart, transOffset;
     XMLInputFactory factory = XMLInputFactory.newFactory();
     XMLStreamReader reader = factory.createXMLStreamReader(new FileReader(confFile));
     HashMap<String,Object> currSvc, existSvc;
+
+    if (confFile.contains("CLT") || confFile.contains("CGET") || confFile.contains("CPUT")) {
+      swapInOut = true;
+    }
 
     while (reader.hasNext()) {
       if (XMLStreamConstants.START_ELEMENT != reader.next()) continue;
@@ -206,6 +211,11 @@ public class LoadConf {
             serviceKey = val;
           }
           currSvc.put(key, val);
+        }
+        if (swapInOut) {
+          Object tmp = currSvc.get("IFmt");
+          currSvc.put("IFmt", currSvc.get("OFmt"));
+          currSvc.put("OFmt", tmp);
         }
         existSvc = (HashMap<String,Object> )allSvcMap.get(serviceKey);
         if (null != existSvc && "drop".equals(conflictRule)) {
