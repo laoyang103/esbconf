@@ -188,10 +188,8 @@ public class StaxDemo {
       HashMap<String, Integer> idmap = getTemplateIdMap(transList);
       transReqId = idmap.get("transReqId");
       if (0 == masterReqId) masterReqId = idmap.get("masterReqId");
-      if ("VC".equals(systemType)) {
-        transResId = idmap.get("transResId");
-        if (0 == masterResId) masterResId = idmap.get("masterResId");
-      }
+      transResId = idmap.get("transResId");
+      if (0 == masterResId) masterResId = idmap.get("masterResId");
 
       System.out.printf("Add trans: [transName=%s] [transCode=%s] [transReqId=%d] [transResId=%d]\n", 
           transName, transCode, transReqId, transResId);
@@ -214,7 +212,7 @@ public class StaxDemo {
         getFmtAllitem(inItemList, inFmt, 1);
         addTemplateItems(transReqId, inItemList, itemNameKey, messageEncoding);
       }
-      if (null != outFmt && "VC".equals(systemType)) {
+      if (null != outFmt) {
         getFmtAllitem(outItemList, outFmt, 1);
         addTemplateItems(transResId, outItemList, itemNameKey, messageEncoding);
       }
