@@ -119,7 +119,7 @@ public class LoadConf {
         currItem.put("_dataType", "str");
         for (i = 0; i < ibmCharList.length; i++) {
           if (-1 != cdata.indexOf(ibmPackList[i])) {
-            currItem.put("_dataType", "without-point-decima");
+            currItem.put("_dataType", "without-point-decimal");
             break;
           }
         }
