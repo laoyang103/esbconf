@@ -32,7 +32,7 @@ public class StaxDemo {
       String itemNameKey, String dataEncoding) {
     int layer, idx = 0, len;
     String param1 = "", param2 = "", param3 = "";
-    String fieldType, IsMust, code, desc, dataType, align; 
+    String fieldType, IsMust, code, desc, dataType; 
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
       // 字段名称
@@ -60,7 +60,7 @@ public class StaxDemo {
       // 参数1
       param1 = (String )item.get("param1");
       if (null == param1) param1 = "";
-      align = (String )item.get("ItemAdj");
+      String align = (String )item.get("ItemAdj");
       if (null != align && ("left".equals(align) || "right".equals(align))) {
         if ("left".equals(align))  param1 = "right";
         if ("right".equals(align)) param1 = "left";
@@ -68,6 +68,11 @@ public class StaxDemo {
       // 参数2
       param2 = (String )item.get("param2");
       if (null == param2) param2 = "";
+      String itemFill = (String )item.get("ItemFill");
+      if (null != itemFill && "fixed-field".equals(fieldType)) {
+        if ("00".equals(itemFill) || "30".equals(itemFill)) param2 = "0";
+        if ("20".equals(itemFill) || "40".equals(itemFill)) param2 = " ";
+      }
       // 参数3
       param3 = (String )item.get("param3");
       if (null == param3) param3 = "";
