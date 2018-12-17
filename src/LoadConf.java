@@ -96,7 +96,7 @@ public class LoadConf {
         lastTagItem = currItem;
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
-      } else if (!"attr".equals((String )currItem.get("XmlType"))) {
+      } else {
         itemsList = (ArrayList<HashMap<String,Object>> )currFmt.get("items");
         itemsList.add(currItem);
       }
@@ -181,6 +181,7 @@ public class LoadConf {
 
     if (confFile.contains("CLT") || confFile.contains("CGET") || confFile.contains("CPUT")) {
       swapInOut = true;
+      System.out.println("Swap in/out Fmt");
     }
 
     while (reader.hasNext()) {

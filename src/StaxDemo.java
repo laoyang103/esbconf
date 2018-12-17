@@ -6,6 +6,9 @@ import net.sf.json.JSONObject;
 
 public class StaxDemo {
 
+  private static boolean addAttrItem = false;
+  private static String itemNameKey = "XmlName";
+
   private static HashMap<String, Integer> getTemplateIdMap(JSONArray transList) {
     int i;
     HashMap<String, Integer> idmap = new HashMap<String, Integer>();
@@ -35,6 +38,10 @@ public class StaxDemo {
     String fieldType, IsMust, code, desc, dataType; 
     JSONArray fieldArray = new JSONArray();
     for (HashMap<String,Object> item: itemList) {
+      // 是否添加属性字段
+      if (!addAttrItem && "attr".equals((String )item.get("XmlType"))) {
+        continue;
+      }
       // 字段名称
       code = (String )item.get(itemNameKey); 
       if (null == code) {
@@ -114,14 +121,14 @@ public class StaxDemo {
     } 
   }
 
-  private static HashMap<String,Object> getFmtByName(String fmtName, String svcName, String messageType, String io) {
+  private static HashMap<String,Object> getFmtByName(String fmtName, String svcName, String messageType) {
     HashMap<String,Object> retFmt = null;
 
     if ("8583".equals(messageType) || "xml".equals(messageType) || "mq".equals(messageType)) {
       retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName);
       return retFmt;
     }
-    if ("in".equals(io) && "common".equals(messageType)) {
+    if (fmtName.contains("IN") && "common".equals(messageType)) {
       StringBuilder sbl = new StringBuilder(svcName);
       StringBuilder sbo = new StringBuilder(svcName);
       sbl.replace(0, 3, "SCL");
@@ -134,12 +141,21 @@ public class StaxDemo {
       }
       return retFmt;
     }
-    if ("out".equals(io) && "common".equals(messageType)) {
+    if (fmtName.contains("OUT") && "common".equals(messageType)) {
       String fmtName0 = "FMT_81_" + svcName + "_OUT";
       retFmt = (HashMap<String,Object> )LoadConf.allFmtMap.get(fmtName0);
       return retFmt;
     }
     return null;
+  }
+
+  private static void diffMessageType(String messageType) {
+    if (messageType.equals("common")) {
+      addAttrItem = true;
+      itemNameKey = "ElemName";
+    } else if (messageType.equals("8583")) {
+      itemNameKey = "_name";
+    }
   }
 
   public static void addSystem(String systemCode, String systemName, String systemType, int commType, 
@@ -151,12 +167,7 @@ public class StaxDemo {
     transStart = Integer.parseInt(ruleArray[0]);
     transOffset = Integer.parseInt(ruleArray[1]);
 
-    String itemNameKey = "XmlName";
-    if (messageType.equals("common")) {
-      itemNameKey = "ElemName";
-    } else if (messageType.equals("8583")) {
-      itemNameKey = "_name";
-    }
+    diffMessageType(messageType);
 
     UrlImport.addMockSystem(systemCode, systemName, systemType, commType, messageType, messageEncoding);
     System.out.printf("Add System: [systemName=%s] [systemCode=%s] [systemType=%s] [svcCount=%d] [realSvcCount=%d]\n", 
@@ -200,8 +211,8 @@ public class StaxDemo {
           transName, transCode, transReqId, transResId);
 
       HashMap<String,Object> inFmt, outFmt, swapFmt;
-      inFmt   = getFmtByName((String )svc.get("IFmt"), (String )svc.get("Name"), messageType, "in");
-      outFmt  = getFmtByName((String )svc.get("OFmt"), (String )svc.get("Name"), messageType, "out");
+      inFmt   = getFmtByName((String )svc.get("IFmt"), (String )svc.get("Name"), messageType);
+      outFmt  = getFmtByName((String )svc.get("OFmt"), (String )svc.get("Name"), messageType);
 
       ArrayList<HashMap<String,Object>> inItemList, outItemList;
       inItemList  = new ArrayList<HashMap<String,Object>>();
